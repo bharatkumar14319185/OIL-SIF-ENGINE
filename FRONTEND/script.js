@@ -37,7 +37,10 @@ const demoReports = {
 
 const reportInput = document.getElementById("reportInput");
 const analyzeBtn = document.getElementById("analyzeBtn");
-const demoSelect = document.getElementById("demoSelect");
+
+// IMPORTANT:
+// HTML uses sampleReport, not demoSelect
+const demoSelect = document.getElementById("sampleReport");
 
 
 // ======================================================
@@ -60,6 +63,7 @@ function escapeHTML(value) {
 
 function getRiskClass(level) {
     switch (String(level || "").toUpperCase()) {
+
         case "CRITICAL":
             return "critical";
 
@@ -79,6 +83,7 @@ function getRiskClass(level) {
 
 
 function formatList(items) {
+
     if (!Array.isArray(items) || items.length === 0) {
         return "<p>No information detected.</p>";
     }
@@ -98,12 +103,23 @@ function formatList(items) {
 // ======================================================
 
 if (demoSelect) {
+
     demoSelect.addEventListener("change", function () {
+
         const selected = this.value;
 
         if (selected && demoReports[selected]) {
+
             if (reportInput) {
                 reportInput.value = demoReports[selected];
+
+                // Remove previous results if any
+                const resultSection =
+                    document.getElementById("resultSection");
+
+                if (resultSection) {
+                    resultSection.style.display = "none";
+                }
             }
         }
     });
@@ -137,19 +153,25 @@ async function analyzeReport() {
 
         const response = await fetch(`${API_BASE_URL}/analyze`, {
             method: "POST",
+
             headers: {
                 "Content-Type": "application/json"
             },
+
             body: JSON.stringify({
                 report: report
             })
         });
 
+
         if (!response.ok) {
             throw new Error(`API Error: ${response.status}`);
         }
 
+
         const result = await response.json();
+
+        console.log("Analysis Result:", result);
 
         renderAnalysisResult(result);
 
@@ -178,8 +200,11 @@ async function analyzeReport() {
 
 function renderAnalysisResult(result) {
 
+    // IMPORTANT:
+    // HTML uses resultSection
     const resultsSection =
-        document.getElementById("resultsSection");
+        document.getElementById("resultSection");
+
 
     if (resultsSection) {
         resultsSection.style.display = "block";
@@ -194,6 +219,7 @@ function renderAnalysisResult(result) {
         document.getElementById("riskScore");
 
     if (riskScore) {
+
         riskScore.innerText =
             `${result.risk_score ?? 0}/100`;
     }
@@ -220,10 +246,13 @@ function renderAnalysisResult(result) {
     // Category
     // --------------------------------------------------
 
+    // IMPORTANT:
+    // HTML uses category
     const category =
-        document.getElementById("riskCategory");
+        document.getElementById("category");
 
     if (category) {
+
         category.innerText =
             result.category || "Not detected";
     }
@@ -237,6 +266,7 @@ function renderAnalysisResult(result) {
         document.getElementById("analysisText");
 
     if (analysis) {
+
         analysis.innerText =
             result.analysis ||
             "No analysis available.";
@@ -247,13 +277,66 @@ function renderAnalysisResult(result) {
     // Why This Risk Level?
     // --------------------------------------------------
 
+    // IMPORTANT:
+    // HTML uses whyRiskList
     const whyRisk =
-        document.getElementById("whyRisk");
+        document.getElementById("whyRiskList");
 
     if (whyRisk) {
-        whyRisk.innerText =
-            result.why_risk ||
-            "Risk level is calculated based on detected safety factors.";
+
+        if (Array.isArray(result.why_risk)) {
+
+            whyRisk.innerHTML =
+                formatList(result.why_risk);
+
+        } else {
+
+            whyRisk.innerText =
+                result.why_risk ||
+                "Risk level is calculated based on detected safety factors.";
+        }
+    }
+
+
+    // --------------------------------------------------
+    // Base Score
+    // --------------------------------------------------
+
+    const baseScore =
+        document.getElementById("baseScore");
+
+    if (baseScore) {
+
+        baseScore.innerText =
+            result.base_score ?? 0;
+    }
+
+
+    // --------------------------------------------------
+    // Detected Points
+    // --------------------------------------------------
+
+    const detectedPoints =
+        document.getElementById("detectedPoints");
+
+    if (detectedPoints) {
+
+        detectedPoints.innerText =
+            result.detected_points ?? 0;
+    }
+
+
+    // --------------------------------------------------
+    // Final Score
+    // --------------------------------------------------
+
+    const finalScore =
+        document.getElementById("finalScore");
+
+    if (finalScore) {
+
+        finalScore.innerText =
+            result.risk_score ?? 0;
     }
 
 
@@ -261,8 +344,10 @@ function renderAnalysisResult(result) {
     // Risk Score Breakdown
     // --------------------------------------------------
 
+    // IMPORTANT:
+    // HTML uses breakdownList
     const breakdown =
-        document.getElementById("scoreBreakdown");
+        document.getElementById("breakdownList");
 
     if (breakdown) {
 
@@ -271,56 +356,101 @@ function renderAnalysisResult(result) {
             result.score_breakdown.length > 0
         ) {
 
-            breakdown.innerHTML = result.score_breakdown
-                .map(item => {
+            breakdown.innerHTML =
+                result.score_breakdown
+                    .map(item => {
 
-                    if (typeof item === "string") {
-                        return `<div class="score-item">${escapeHTML(item)}</div>`;
-                    }
+                        if (typeof item === "string") {
 
-                    const factor =
-                        item.factor ||
-                        item.name ||
-                        item.label ||
-                        "Risk Factor";
+                            return `
+                                <div class="score-item">
+                                    ${escapeHTML(item)}
+                                </div>
+                            `;
+                        }
 
-                    const points =
-                        item.points ??
-                        item.score ??
-                        0;
 
-                    return `
-                        <div class="score-item">
-                            <span>${escapeHTML(factor)}</span>
-                            <strong>+${escapeHTML(points)}</strong>
-                        </div>
-                    `;
-                })
-                .join("");
+                        const factor =
+                            item.factor ||
+                            item.name ||
+                            item.label ||
+                            "Risk Factor";
+
+
+                        const points =
+                            item.points ??
+                            item.score ??
+                            0;
+
+
+                        return `
+                            <div class="score-item">
+
+                                <span>
+                                    ${escapeHTML(factor)}
+                                </span>
+
+                                <strong>
+                                    +${escapeHTML(points)}
+                                </strong>
+
+                            </div>
+                        `;
+                    })
+                    .join("");
 
         } else {
 
-            const baseScore =
+            const base =
                 result.base_score ?? 0;
 
-            const detectedPoints =
+            const detected =
                 result.detected_points ?? 0;
 
+            const final =
+                result.risk_score ?? 0;
+
+
             breakdown.innerHTML = `
-                <div class="score-item">
-                    <span>Base Score</span>
-                    <strong>+${baseScore}</strong>
-                </div>
 
                 <div class="score-item">
-                    <span>Detected Risk Factors</span>
-                    <strong>+${detectedPoints}</strong>
+
+                    <span>
+                        Base Score
+                    </span>
+
+                    <strong>
+                        +${base}
+                    </strong>
+
                 </div>
+
+
+                <div class="score-item">
+
+                    <span>
+                        Detected Risk Factors
+                    </span>
+
+                    <strong>
+                        +${detected}
+                    </strong>
+
+                </div>
+
 
                 <div class="score-item total">
-                    <span>Final Risk Score</span>
-                    <strong>${result.risk_score ?? 0}</strong>
+
+                    <span>
+                        Final Risk Score
+                    </span>
+
+                    <strong>
+                        ${final}
+                    </strong>
+
                 </div>
+
             `;
         }
     }
@@ -349,8 +479,10 @@ function renderAnalysisResult(result) {
     // SIF Precursors
     // --------------------------------------------------
 
+    // IMPORTANT:
+    // HTML uses precursorsList
     const precursors =
-        document.getElementById("precursorList");
+        document.getElementById("precursorsList");
 
     if (precursors) {
 
@@ -363,8 +495,10 @@ function renderAnalysisResult(result) {
     // Potential Consequences
     // --------------------------------------------------
 
+    // IMPORTANT:
+    // HTML uses consequencesList
     const consequences =
-        document.getElementById("consequenceList");
+        document.getElementById("consequencesList");
 
     if (consequences) {
 
@@ -377,8 +511,10 @@ function renderAnalysisResult(result) {
     // Recommended Corrective Actions
     // --------------------------------------------------
 
+    // IMPORTANT:
+    // HTML uses actionsList
     const actions =
-        document.getElementById("actionList");
+        document.getElementById("actionsList");
 
     if (actions) {
 
@@ -397,12 +533,12 @@ function renderAnalysisResult(result) {
     if (originalReport) {
 
         originalReport.innerText =
-            result.original_report || "";
+            result.original_report || reportInput.value;
     }
 
 
     // --------------------------------------------------
-    // Scroll to results
+    // Scroll to Results
     // --------------------------------------------------
 
     if (resultsSection) {
@@ -426,14 +562,20 @@ async function loadDashboard() {
         const response =
             await fetch(`${API_BASE_URL}/dashboard`);
 
+
         if (!response.ok) {
+
             throw new Error(
                 `Dashboard API Error: ${response.status}`
             );
         }
 
+
         const data =
             await response.json();
+
+
+        console.log("Dashboard Data:", data);
 
         renderDashboard(data);
 
@@ -443,6 +585,20 @@ async function loadDashboard() {
             "Dashboard loading error:",
             error
         );
+
+        const tableBody =
+            document.getElementById("reportsTable");
+
+        if (tableBody) {
+
+            tableBody.innerHTML = `
+                <tr>
+                    <td colspan="5">
+                        Unable to load safety reports.
+                    </td>
+                </tr>
+            `;
+        }
     }
 }
 
@@ -474,26 +630,35 @@ function renderDashboard(data) {
 
 
     if (total) {
+
         total.innerText =
             data.total_reports ?? 0;
     }
 
+
     if (critical) {
+
         critical.innerText =
             data.critical ?? 0;
     }
 
+
     if (high) {
+
         high.innerText =
             data.high ?? 0;
     }
 
+
     if (medium) {
+
         medium.innerText =
             data.medium ?? 0;
     }
 
+
     if (low) {
+
         low.innerText =
             data.low ?? 0;
     }
@@ -514,6 +679,7 @@ function renderDashboard(data) {
         totalReports
     );
 
+
     updateRiskBar(
         "highBar",
         "highCount",
@@ -521,12 +687,14 @@ function renderDashboard(data) {
         totalReports
     );
 
+
     updateRiskBar(
         "mediumBar",
         "mediumCount",
         data.medium || 0,
         totalReports
     );
+
 
     updateRiskBar(
         "lowBar",
@@ -569,6 +737,7 @@ function updateRiskBar(
     const bar =
         document.getElementById(barId);
 
+
     const countElement =
         document.getElementById(countId);
 
@@ -580,11 +749,14 @@ function updateRiskBar(
 
 
     if (bar) {
+
         bar.style.width =
             `${percentage}%`;
     }
 
+
     if (countElement) {
+
         countElement.innerText =
             `${count} (${percentage}%)`;
     }
@@ -599,6 +771,7 @@ function renderPrecursorCounts(counts) {
 
     const container =
         document.getElementById("precursorBars");
+
 
     if (!container) {
         return;
@@ -639,10 +812,13 @@ function renderPrecursorCounts(counts) {
                         (count / maxCount) * 100
                     );
 
+
                 return `
+
                     <div class="precursor-row">
 
                         <div class="precursor-label">
+
                             <span>
                                 ${escapeHTML(name)}
                             </span>
@@ -650,7 +826,9 @@ function renderPrecursorCounts(counts) {
                             <strong>
                                 ${escapeHTML(count)}
                             </strong>
+
                         </div>
+
 
                         <div class="precursor-track">
 
@@ -662,6 +840,7 @@ function renderPrecursorCounts(counts) {
                         </div>
 
                     </div>
+
                 `;
             })
             .join("");
@@ -674,8 +853,11 @@ function renderPrecursorCounts(counts) {
 
 function renderRecentReports(reports) {
 
+    // IMPORTANT:
+    // HTML uses reportsTable
     const tableBody =
-        document.getElementById("reportsTableBody");
+        document.getElementById("reportsTable");
+
 
     if (!tableBody) {
         return;
@@ -685,11 +867,15 @@ function renderRecentReports(reports) {
     if (!reports.length) {
 
         tableBody.innerHTML = `
+
             <tr>
+
                 <td colspan="5">
                     No reports available.
                 </td>
+
             </tr>
+
         `;
 
         return;
@@ -706,38 +892,50 @@ function renderRecentReports(reports) {
                     );
 
 
-                const precursorText =
-                    Array.isArray(report.precursors)
-                        ? report.precursors.join(", ")
-                        : "None";
-
-
                 return `
+
                     <tr>
 
                         <td>
                             #${escapeHTML(report.id)}
                         </td>
 
+
                         <td>
                             ${escapeHTML(report.report)}
                         </td>
 
-                        <td>
-                            ${escapeHTML(report.category)}
-                        </td>
 
                         <td>
-                            <span class="risk-badge ${riskClass}">
-                                ${escapeHTML(report.risk_level)}
+                            ${escapeHTML(
+                                report.category ||
+                                "Not detected"
+                            )}
+                        </td>
+
+
+                        <td>
+
+                            <span
+                                class="risk-badge ${riskClass}"
+                            >
+                                ${escapeHTML(
+                                    report.risk_level ||
+                                    "UNKNOWN"
+                                )}
                             </span>
+
                         </td>
 
+
                         <td>
-                            ${escapeHTML(report.risk_score)}
+                            ${escapeHTML(
+                                report.risk_score ?? 0
+                            )}
                         </td>
 
                     </tr>
+
                 `;
             })
             .join("");
