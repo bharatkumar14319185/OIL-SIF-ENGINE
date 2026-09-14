@@ -1,9 +1,10 @@
-// ============================================================
-// SAMPLE REPORTS
-// ============================================================
+const API_BASE_URL = "https://oil-sif-engine.onrender.com";
 
-const sampleReports = {
+// ======================================================
+// DEMO SCENARIOS
+// ======================================================
 
+const demoReports = {
     confined:
         "Worker entered a confined space without gas testing and without permit.",
 
@@ -13,938 +14,778 @@ const sampleReports = {
     height:
         "Worker was working at height without a safety harness and without guardrail.",
 
-    hydrocarbon:
+    fire:
         "A hydrocarbon leak was observed near a hot work area.",
 
-    ppe:
-        "Worker was handling hazardous material without gloves and without helmet."
+    chemical:
+        "Worker was handling hazardous material without gloves and without helmet.",
 
+    vessel:
+        "Worker entered a vessel after gas testing was not carried out and the entry permit was not obtained.",
+
+    energized:
+        "Maintenance activity was performed near an energized electrical panel. LOTO was not applied.",
+
+    ventilation:
+        "Poor ventilation was observed inside a confined space before entry."
 };
 
 
-// ============================================================
-// LOAD SAMPLE
-// ============================================================
+// ======================================================
+// DOM ELEMENTS
+// ======================================================
 
-function loadSampleReport() {
-
-    const dropdown =
-        document.getElementById("sampleReport");
-
-    const reportInput =
-        document.getElementById("reportInput");
-
-    const selected =
-        dropdown.value;
+const reportInput = document.getElementById("reportInput");
+const analyzeBtn = document.getElementById("analyzeBtn");
+const demoSelect = document.getElementById("demoSelect");
 
 
-    if (
-        selected &&
-        sampleReports[selected]
-    ) {
+// ======================================================
+// UTILITY FUNCTIONS
+// ======================================================
 
-        reportInput.value =
-            sampleReports[selected];
-
+function escapeHTML(value) {
+    if (value === null || value === undefined) {
+        return "";
     }
 
-    else {
-
-        reportInput.value = "";
-
-    }
-
+    return String(value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
 }
 
 
-// ============================================================
+function getRiskClass(level) {
+    switch (String(level || "").toUpperCase()) {
+        case "CRITICAL":
+            return "critical";
+
+        case "HIGH":
+            return "high";
+
+        case "MEDIUM":
+            return "medium";
+
+        case "LOW":
+            return "low";
+
+        default:
+            return "";
+    }
+}
+
+
+function formatList(items) {
+    if (!Array.isArray(items) || items.length === 0) {
+        return "<p>No information detected.</p>";
+    }
+
+    return `
+        <ul>
+            ${items
+                .map(item => `<li>${escapeHTML(item)}</li>`)
+                .join("")}
+        </ul>
+    `;
+}
+
+
+// ======================================================
+// DEMO DROPDOWN
+// ======================================================
+
+if (demoSelect) {
+    demoSelect.addEventListener("change", function () {
+        const selected = this.value;
+
+        if (selected && demoReports[selected]) {
+            if (reportInput) {
+                reportInput.value = demoReports[selected];
+            }
+        }
+    });
+}
+
+
+// ======================================================
 // ANALYZE REPORT
-// ============================================================
+// ======================================================
 
 async function analyzeReport() {
 
-    const reportInput =
-        document.getElementById("reportInput");
-
-    const analyzeBtn =
-        document.getElementById("analyzeBtn");
-
-    const loading =
-        document.getElementById("loading");
-
-    const resultSection =
-        document.getElementById("resultSection");
-
-
-    const report =
-        reportInput.value.trim();
-
-
-    if (!report) {
-
-        alert(
-            "Please enter a safety report."
-        );
-
+    if (!reportInput) {
+        console.error("Report input element not found.");
         return;
-
     }
 
+    const report = reportInput.value.trim();
 
-    analyzeBtn.disabled =
-        true;
+    if (!report) {
+        alert("Please enter a safety report first.");
+        return;
+    }
 
-    analyzeBtn.innerText =
-        "ANALYZING...";
-
-    loading.classList.remove(
-        "hidden"
-    );
-
-    resultSection.classList.add(
-        "hidden"
-    );
-
+    if (analyzeBtn) {
+        analyzeBtn.disabled = true;
+        analyzeBtn.innerText = "Analyzing...";
+    }
 
     try {
 
-        const response =
-            await fetch(
-                "http://127.0.0.1:8000/analyze",
-                {
-
-                    method:
-                        "POST",
-
-                    headers: {
-                        "Content-Type":
-                            "application/json"
-                    },
-
-                    body:
-                        JSON.stringify({
-                            report:
-                                report
-                        })
-
-                }
-            );
-
-
-        if (!response.ok) {
-
-            throw new Error(
-                "Backend request failed"
-            );
-
-        }
-
-
-        const data =
-            await response.json();
-
-
-        // ====================================================
-        // RISK SCORE
-        // ====================================================
-
-        const score =
-            data.risk_score;
-
-
-        document.getElementById(
-            "riskScore"
-        ).innerText =
-            score;
-
-
-        document.getElementById(
-            "finalScore"
-        ).innerText =
-            score;
-
-
-        document.getElementById(
-            "baseScore"
-        ).innerText =
-            data.base_score;
-
-
-        document.getElementById(
-            "detectedPoints"
-        ).innerText =
-            data.detected_points;
-
-
-        // ====================================================
-        // SCORE CIRCLE
-        // ====================================================
-
-        const scoreCircle =
-            document.querySelector(
-                ".score-circle"
-            );
-
-
-        const degrees =
-            (score / 100) * 360;
-
-
-        let scoreColor;
-
-
-        if (score >= 76) {
-
-            scoreColor =
-                "#ef4444";
-
-        }
-
-        else if (score >= 51) {
-
-            scoreColor =
-                "#f97316";
-
-        }
-
-        else if (score >= 26) {
-
-            scoreColor =
-                "#eab308";
-
-        }
-
-        else {
-
-            scoreColor =
-                "#22c55e";
-
-        }
-
-
-        scoreCircle.style.background = `
-
-            radial-gradient(
-                circle,
-                #0d1522 58%,
-                transparent 59%
-            ),
-
-            conic-gradient(
-                ${scoreColor} 0deg,
-                ${scoreColor} ${degrees}deg,
-                #26384d ${degrees}deg,
-                #26384d 360deg
-            )
-
-        `;
-
-
-        // ====================================================
-        // RISK LEVEL
-        // ====================================================
-
-        const riskLevel =
-            document.getElementById(
-                "riskLevel"
-            );
-
-
-        riskLevel.innerText =
-            data.risk_level;
-
-
-        if (
-            data.risk_level ===
-            "CRITICAL"
-        ) {
-
-            riskLevel.style.color =
-                "#ef4444";
-
-        }
-
-        else if (
-            data.risk_level ===
-            "HIGH"
-        ) {
-
-            riskLevel.style.color =
-                "#f97316";
-
-        }
-
-        else if (
-            data.risk_level ===
-            "MEDIUM"
-        ) {
-
-            riskLevel.style.color =
-                "#eab308";
-
-        }
-
-        else {
-
-            riskLevel.style.color =
-                "#22c55e";
-
-        }
-
-
-        // ====================================================
-        // CATEGORY
-        // ====================================================
-
-        document.getElementById(
-            "category"
-        ).innerText =
-            data.category;
-
-
-        // ====================================================
-        // ANALYSIS
-        // ====================================================
-
-        document.getElementById(
-            "analysisText"
-        ).innerText =
-            data.analysis;
-
-
-        // ====================================================
-        // WHY RISK
-        // ====================================================
-
-        const whyRiskList =
-            document.getElementById(
-                "whyRiskList"
-            );
-
-
-        whyRiskList.innerHTML =
-            "";
-
-
-        data.why_risk.forEach(
-            item => {
-
-                const div =
-                    document.createElement(
-                        "div"
-                    );
-
-
-                div.className =
-                    "why-item";
-
-
-                div.innerText =
-                    item;
-
-
-                whyRiskList.appendChild(
-                    div
-                );
-
-            }
-        );
-
-
-        // ====================================================
-        // SCORE BREAKDOWN
-        // ====================================================
-
-        const breakdownList =
-            document.getElementById(
-                "breakdownList"
-            );
-
-
-        breakdownList.innerHTML =
-            "";
-
-
-        data.score_breakdown.forEach(
-            item => {
-
-                const div =
-                    document.createElement(
-                        "div"
-                    );
-
-
-                div.className =
-                    "breakdown-item";
-
-
-                div.innerHTML = `
-
-                    <div>
-
-                        <strong>
-                            ${item.factor}
-                        </strong>
-
-                        <span>
-                            ${item.reason}
-                        </span>
-
-                    </div>
-
-                    <b>
-                        +${item.points}
-                    </b>
-
-                `;
-
-
-                breakdownList.appendChild(
-                    div
-                );
-
-            }
-        );
-
-
-        // ====================================================
-        // LISTS
-        // ====================================================
-
-        fillList(
-            "evidenceList",
-            data.evidence,
-            "No specific evidence phrase detected."
-        );
-
-
-        fillList(
-            "precursorsList",
-            data.precursors,
-            "No major SIF precursor detected."
-        );
-
-
-        fillList(
-            "consequencesList",
-            data.consequences,
-            "No consequence identified."
-        );
-
-
-        fillList(
-            "actionsList",
-            data.actions,
-            "No corrective action identified."
-        );
-
-
-        // SHOW
-
-        resultSection.classList.remove(
-            "hidden"
-        );
-
-
-        resultSection.scrollIntoView({
-            behavior:
-                "smooth"
+        const response = await fetch(`${API_BASE_URL}/analyze`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                report: report
+            })
         });
 
+        if (!response.ok) {
+            throw new Error(`API Error: ${response.status}`);
+        }
 
-    }
+        const result = await response.json();
 
-    catch (error) {
+        renderAnalysisResult(result);
 
-        console.error(
-            error
-        );
+    } catch (error) {
+
+        console.error("Analysis error:", error);
 
         alert(
-            "Unable to connect to backend. Make sure FastAPI is running."
+            "Unable to connect to the OIL SIF backend.\n\n" +
+            "Please make sure the Render service is running."
         );
 
+    } finally {
+
+        if (analyzeBtn) {
+            analyzeBtn.disabled = false;
+            analyzeBtn.innerText = "Analyze Report";
+        }
     }
-
-
-    finally {
-
-        loading.classList.add(
-            "hidden"
-        );
-
-        analyzeBtn.disabled =
-            false;
-
-        analyzeBtn.innerText =
-            "ANALYZE REPORT";
-
-    }
-
 }
 
 
-// ============================================================
-// FILL LIST
-// ============================================================
+// ======================================================
+// RENDER ANALYSIS RESULT
+// ======================================================
 
-function fillList(
-    elementId,
-    items,
-    emptyMessage
-) {
+function renderAnalysisResult(result) {
 
-    const list =
-        document.getElementById(
-            elementId
-        );
+    const resultsSection =
+        document.getElementById("resultsSection");
 
-
-    list.innerHTML =
-        "";
-
-
-    if (
-        items &&
-        items.length > 0
-    ) {
-
-        items.forEach(
-            item => {
-
-                const li =
-                    document.createElement(
-                        "li"
-                    );
-
-                li.innerText =
-                    item;
-
-                list.appendChild(
-                    li
-                );
-
-            }
-        );
-
+    if (resultsSection) {
+        resultsSection.style.display = "block";
     }
 
-    else {
 
-        const li =
-            document.createElement(
-                "li"
-            );
+    // --------------------------------------------------
+    // Risk Score
+    // --------------------------------------------------
 
-        li.innerText =
-            emptyMessage;
+    const riskScore =
+        document.getElementById("riskScore");
 
-        list.appendChild(
-            li
-        );
-
+    if (riskScore) {
+        riskScore.innerText =
+            `${result.risk_score ?? 0}/100`;
     }
 
+
+    // --------------------------------------------------
+    // Risk Level
+    // --------------------------------------------------
+
+    const riskLevel =
+        document.getElementById("riskLevel");
+
+    if (riskLevel) {
+
+        riskLevel.innerText =
+            result.risk_level || "UNKNOWN";
+
+        riskLevel.className =
+            `risk-badge ${getRiskClass(result.risk_level)}`;
+    }
+
+
+    // --------------------------------------------------
+    // Category
+    // --------------------------------------------------
+
+    const category =
+        document.getElementById("riskCategory");
+
+    if (category) {
+        category.innerText =
+            result.category || "Not detected";
+    }
+
+
+    // --------------------------------------------------
+    // Explainable AI Analysis
+    // --------------------------------------------------
+
+    const analysis =
+        document.getElementById("analysisText");
+
+    if (analysis) {
+        analysis.innerText =
+            result.analysis ||
+            "No analysis available.";
+    }
+
+
+    // --------------------------------------------------
+    // Why This Risk Level?
+    // --------------------------------------------------
+
+    const whyRisk =
+        document.getElementById("whyRisk");
+
+    if (whyRisk) {
+        whyRisk.innerText =
+            result.why_risk ||
+            "Risk level is calculated based on detected safety factors.";
+    }
+
+
+    // --------------------------------------------------
+    // Risk Score Breakdown
+    // --------------------------------------------------
+
+    const breakdown =
+        document.getElementById("scoreBreakdown");
+
+    if (breakdown) {
+
+        if (
+            Array.isArray(result.score_breakdown) &&
+            result.score_breakdown.length > 0
+        ) {
+
+            breakdown.innerHTML = result.score_breakdown
+                .map(item => {
+
+                    if (typeof item === "string") {
+                        return `<div class="score-item">${escapeHTML(item)}</div>`;
+                    }
+
+                    const factor =
+                        item.factor ||
+                        item.name ||
+                        item.label ||
+                        "Risk Factor";
+
+                    const points =
+                        item.points ??
+                        item.score ??
+                        0;
+
+                    return `
+                        <div class="score-item">
+                            <span>${escapeHTML(factor)}</span>
+                            <strong>+${escapeHTML(points)}</strong>
+                        </div>
+                    `;
+                })
+                .join("");
+
+        } else {
+
+            const baseScore =
+                result.base_score ?? 0;
+
+            const detectedPoints =
+                result.detected_points ?? 0;
+
+            breakdown.innerHTML = `
+                <div class="score-item">
+                    <span>Base Score</span>
+                    <strong>+${baseScore}</strong>
+                </div>
+
+                <div class="score-item">
+                    <span>Detected Risk Factors</span>
+                    <strong>+${detectedPoints}</strong>
+                </div>
+
+                <div class="score-item total">
+                    <span>Final Risk Score</span>
+                    <strong>${result.risk_score ?? 0}</strong>
+                </div>
+            `;
+        }
+    }
+
+
+    // --------------------------------------------------
+    // Detected Evidence
+    // --------------------------------------------------
+
+    const evidence =
+        document.getElementById("evidenceList");
+
+    if (evidence) {
+
+        const evidenceData =
+            result.evidence ||
+            result.detected_hazards ||
+            [];
+
+        evidence.innerHTML =
+            formatList(evidenceData);
+    }
+
+
+    // --------------------------------------------------
+    // SIF Precursors
+    // --------------------------------------------------
+
+    const precursors =
+        document.getElementById("precursorList");
+
+    if (precursors) {
+
+        precursors.innerHTML =
+            formatList(result.precursors || []);
+    }
+
+
+    // --------------------------------------------------
+    // Potential Consequences
+    // --------------------------------------------------
+
+    const consequences =
+        document.getElementById("consequenceList");
+
+    if (consequences) {
+
+        consequences.innerHTML =
+            formatList(result.consequences || []);
+    }
+
+
+    // --------------------------------------------------
+    // Recommended Corrective Actions
+    // --------------------------------------------------
+
+    const actions =
+        document.getElementById("actionList");
+
+    if (actions) {
+
+        actions.innerHTML =
+            formatList(result.actions || []);
+    }
+
+
+    // --------------------------------------------------
+    // Original Report
+    // --------------------------------------------------
+
+    const originalReport =
+        document.getElementById("originalReport");
+
+    if (originalReport) {
+
+        originalReport.innerText =
+            result.original_report || "";
+    }
+
+
+    // --------------------------------------------------
+    // Scroll to results
+    // --------------------------------------------------
+
+    if (resultsSection) {
+
+        resultsSection.scrollIntoView({
+            behavior: "smooth",
+            block: "start"
+        });
+    }
 }
 
 
-// ============================================================
+// ======================================================
 // DASHBOARD
-// ============================================================
+// ======================================================
 
 async function loadDashboard() {
 
-    const status =
-        document.getElementById(
-            "reportStatus"
-        );
-
-
-    status.innerText =
-        "Loading...";
-
-
     try {
 
         const response =
-            await fetch(
-                "http://127.0.0.1:8000/dashboard"
-            );
-
+            await fetch(`${API_BASE_URL}/dashboard`);
 
         if (!response.ok) {
-
             throw new Error(
-                "Dashboard request failed"
+                `Dashboard API Error: ${response.status}`
             );
-
         }
-
 
         const data =
             await response.json();
 
+        renderDashboard(data);
 
-        document.getElementById(
-            "totalReports"
-        ).innerText =
-            data.total_reports;
-
-
-        document.getElementById(
-            "criticalReports"
-        ).innerText =
-            data.critical;
-
-
-        document.getElementById(
-            "highReports"
-        ).innerText =
-            data.high;
-
-
-        document.getElementById(
-            "mediumReports"
-        ).innerText =
-            data.medium;
-
-
-        document.getElementById(
-            "lowReports"
-        ).innerText =
-            data.low;
-
-
-        createRiskBars(data);
-
-        createPrecursorBars(
-            data.precursor_counts
-        );
-
-
-        const table =
-            document.getElementById(
-                "reportsTable"
-            );
-
-
-        table.innerHTML =
-            "";
-
-
-        data.reports.forEach(
-            report => {
-
-                const row =
-                    document.createElement(
-                        "tr"
-                    );
-
-
-                const riskClass =
-                    report.risk_level.toLowerCase();
-
-
-                row.innerHTML = `
-
-                    <td>
-                        #${report.id}
-                    </td>
-
-                    <td class="report-text">
-                        ${report.report}
-                    </td>
-
-                    <td>
-                        ${report.category}
-                    </td>
-
-                    <td>
-
-                        <span class="risk-badge ${riskClass}">
-                            ${report.risk_level}
-                        </span>
-
-                    </td>
-
-                    <td>
-                        <strong>
-                            ${report.risk_score}
-                        </strong>
-                    </td>
-
-                `;
-
-
-                table.appendChild(
-                    row
-                );
-
-            }
-        );
-
-
-        status.innerText =
-            `${data.total_reports} reports analyzed`;
-
-
-    }
-
-    catch (error) {
+    } catch (error) {
 
         console.error(
+            "Dashboard loading error:",
             error
         );
+    }
+}
 
-        status.innerText =
-            "Dashboard unavailable";
 
+// ======================================================
+// RENDER DASHBOARD
+// ======================================================
+
+function renderDashboard(data) {
+
+    // --------------------------------------------------
+    // Statistics
+    // --------------------------------------------------
+
+    const total =
+        document.getElementById("totalReports");
+
+    const critical =
+        document.getElementById("criticalReports");
+
+    const high =
+        document.getElementById("highReports");
+
+    const medium =
+        document.getElementById("mediumReports");
+
+    const low =
+        document.getElementById("lowReports");
+
+
+    if (total) {
+        total.innerText =
+            data.total_reports ?? 0;
     }
 
-}
+    if (critical) {
+        critical.innerText =
+            data.critical ?? 0;
+    }
+
+    if (high) {
+        high.innerText =
+            data.high ?? 0;
+    }
+
+    if (medium) {
+        medium.innerText =
+            data.medium ?? 0;
+    }
+
+    if (low) {
+        low.innerText =
+            data.low ?? 0;
+    }
 
 
-// ============================================================
-// RISK BARS
-// ============================================================
+    // --------------------------------------------------
+    // Risk Distribution
+    // --------------------------------------------------
 
-function createRiskBars(data) {
-
-    const container =
-        document.getElementById(
-            "riskBars"
-        );
+    const totalReports =
+        data.total_reports || 1;
 
 
-    container.innerHTML =
-        "";
-
-
-    const risks = [
-
-        {
-            name: "Critical",
-            count: data.critical,
-            className: "critical"
-        },
-
-        {
-            name: "High",
-            count: data.high,
-            className: "high"
-        },
-
-        {
-            name: "Medium",
-            count: data.medium,
-            className: "medium"
-        },
-
-        {
-            name: "Low",
-            count: data.low,
-            className: "low"
-        }
-
-    ];
-
-
-    const max =
-        Math.max(
-            ...risks.map(
-                r => r.count
-            ),
-            1
-        );
-
-
-    risks.forEach(
-        risk => {
-
-            const percentage =
-                (risk.count / max) * 100;
-
-
-            const row =
-                document.createElement(
-                    "div"
-                );
-
-
-            row.className =
-                "bar-row";
-
-
-            row.innerHTML = `
-
-                <div class="bar-label">
-
-                    <span>
-                        ${risk.name}
-                    </span>
-
-                    <strong>
-                        ${risk.count}
-                    </strong>
-
-                </div>
-
-
-                <div class="bar-background">
-
-                    <div
-                        class="bar-fill ${risk.className}"
-                        style="width:${percentage}%"
-                    >
-                    </div>
-
-                </div>
-
-            `;
-
-
-            container.appendChild(
-                row
-            );
-
-        }
+    updateRiskBar(
+        "criticalBar",
+        "criticalCount",
+        data.critical || 0,
+        totalReports
     );
 
+    updateRiskBar(
+        "highBar",
+        "highCount",
+        data.high || 0,
+        totalReports
+    );
+
+    updateRiskBar(
+        "mediumBar",
+        "mediumCount",
+        data.medium || 0,
+        totalReports
+    );
+
+    updateRiskBar(
+        "lowBar",
+        "lowCount",
+        data.low || 0,
+        totalReports
+    );
+
+
+    // --------------------------------------------------
+    // Precursor Distribution
+    // --------------------------------------------------
+
+    renderPrecursorCounts(
+        data.precursor_counts || {}
+    );
+
+
+    // --------------------------------------------------
+    // Recent Reports
+    // --------------------------------------------------
+
+    renderRecentReports(
+        data.reports || []
+    );
 }
 
 
-// ============================================================
-// PRECURSOR BARS
-// ============================================================
+// ======================================================
+// RISK BAR
+// ======================================================
 
-function createPrecursorBars(
-    precursorCounts
+function updateRiskBar(
+    barId,
+    countId,
+    count,
+    total
 ) {
 
+    const bar =
+        document.getElementById(barId);
+
+    const countElement =
+        document.getElementById(countId);
+
+
+    const percentage =
+        total > 0
+            ? Math.round((count / total) * 100)
+            : 0;
+
+
+    if (bar) {
+        bar.style.width =
+            `${percentage}%`;
+    }
+
+    if (countElement) {
+        countElement.innerText =
+            `${count} (${percentage}%)`;
+    }
+}
+
+
+// ======================================================
+// PRECURSOR COUNTS
+// ======================================================
+
+function renderPrecursorCounts(counts) {
+
     const container =
-        document.getElementById(
-            "precursorBars"
-        );
+        document.getElementById("precursorBars");
 
-
-    container.innerHTML =
-        "";
+    if (!container) {
+        return;
+    }
 
 
     const entries =
-        Object.entries(
-            precursorCounts
-        );
+        Object.entries(counts);
+
+
+    if (entries.length === 0) {
+
+        container.innerHTML =
+            "<p>No precursor data available.</p>";
+
+        return;
+    }
 
 
     entries.sort(
-        (a, b) =>
-            b[1] - a[1]
+        (a, b) => b[1] - a[1]
     );
 
 
-    const top =
-        entries.slice(
-            0,
-            6
-        );
-
-
-    const max =
+    const maxCount =
         Math.max(
-            ...top.map(
-                item => item[1]
-            ),
+            ...entries.map(item => item[1]),
             1
         );
 
 
-    top.forEach(
-        item => {
+    container.innerHTML =
+        entries
+            .map(([name, count]) => {
 
-            const percentage =
-                (item[1] / max) * 100;
+                const percentage =
+                    Math.round(
+                        (count / maxCount) * 100
+                    );
 
+                return `
+                    <div class="precursor-row">
 
-            const row =
-                document.createElement(
-                    "div"
-                );
+                        <div class="precursor-label">
+                            <span>
+                                ${escapeHTML(name)}
+                            </span>
 
+                            <strong>
+                                ${escapeHTML(count)}
+                            </strong>
+                        </div>
 
-            row.className =
-                "bar-row";
+                        <div class="precursor-track">
 
+                            <div
+                                class="precursor-fill"
+                                style="width:${percentage}%"
+                            ></div>
 
-            row.innerHTML = `
+                        </div>
 
-                <div class="bar-label">
-
-                    <span>
-                        ${item[0]}
-                    </span>
-
-                    <strong>
-                        ${item[1]}
-                    </strong>
-
-                </div>
-
-
-                <div class="bar-background">
-
-                    <div
-                        class="bar-fill precursor"
-                        style="width:${percentage}%"
-                    >
                     </div>
-
-                </div>
-
-            `;
-
-
-            container.appendChild(
-                row
-            );
-
-        }
-    );
-
+                `;
+            })
+            .join("");
 }
 
 
-// ============================================================
-// PAGE LOAD
-// ============================================================
+// ======================================================
+// RECENT REPORTS TABLE
+// ======================================================
+
+function renderRecentReports(reports) {
+
+    const tableBody =
+        document.getElementById("reportsTableBody");
+
+    if (!tableBody) {
+        return;
+    }
+
+
+    if (!reports.length) {
+
+        tableBody.innerHTML = `
+            <tr>
+                <td colspan="5">
+                    No reports available.
+                </td>
+            </tr>
+        `;
+
+        return;
+    }
+
+
+    tableBody.innerHTML =
+        reports
+            .map(report => {
+
+                const riskClass =
+                    getRiskClass(
+                        report.risk_level
+                    );
+
+
+                const precursorText =
+                    Array.isArray(report.precursors)
+                        ? report.precursors.join(", ")
+                        : "None";
+
+
+                return `
+                    <tr>
+
+                        <td>
+                            #${escapeHTML(report.id)}
+                        </td>
+
+                        <td>
+                            ${escapeHTML(report.report)}
+                        </td>
+
+                        <td>
+                            ${escapeHTML(report.category)}
+                        </td>
+
+                        <td>
+                            <span class="risk-badge ${riskClass}">
+                                ${escapeHTML(report.risk_level)}
+                            </span>
+                        </td>
+
+                        <td>
+                            ${escapeHTML(report.risk_score)}
+                        </td>
+
+                    </tr>
+                `;
+            })
+            .join("");
+}
+
+
+// ======================================================
+// ANALYZE BUTTON
+// ======================================================
+
+if (analyzeBtn) {
+
+    analyzeBtn.addEventListener(
+        "click",
+        analyzeReport
+    );
+}
+
+
+// ======================================================
+// ENTER KEY SUPPORT
+// ======================================================
+
+if (reportInput) {
+
+    reportInput.addEventListener(
+        "keydown",
+        function (event) {
+
+            if (
+                event.key === "Enter" &&
+                (event.ctrlKey || event.metaKey)
+            ) {
+
+                analyzeReport();
+            }
+        }
+    );
+}
+
+
+// ======================================================
+// INITIAL DASHBOARD LOAD
+// ======================================================
 
 document.addEventListener(
     "DOMContentLoaded",
     function () {
-
-        const dropdown =
-            document.getElementById(
-                "sampleReport"
-            );
-
-
-        const analyzeBtn =
-            document.getElementById(
-                "analyzeBtn"
-            );
-
-
-        dropdown.addEventListener(
-            "change",
-            loadSampleReport
-        );
-
-
-        analyzeBtn.addEventListener(
-            "click",
-            analyzeReport
-        );
-
 
         loadDashboard();
 
