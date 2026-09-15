@@ -2,39 +2,795 @@
 <html lang="en">
 
 <head>
+
     <meta charset="UTF-8">
 
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
-    <title>OIL SIF Safety Intelligence Engine</title>
+    <title>
+        OIL SIF Safety Intelligence Engine
+    </title>
 
-    <link rel="stylesheet" href="style.css">
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+
+        body {
+
+            margin: 0;
+
+            font-family:
+                Arial,
+                Helvetica,
+                sans-serif;
+
+            background:
+                #f8fafc;
+
+            color:
+                #0f172a;
+        }
+
+
+        /* =========================================
+           HEADER
+        ========================================= */
+
+        header {
+
+            background:
+                #0f172a;
+
+            color:
+                white;
+
+            padding:
+                22px 30px;
+        }
+
+
+        header h1 {
+
+            margin: 0;
+
+            font-size:
+                26px;
+        }
+
+
+        header p {
+
+            margin:
+                6px 0 0;
+
+            color:
+                #cbd5e1;
+        }
+
+
+        /* =========================================
+           CONTAINER
+        ========================================= */
+
+        .container {
+
+            width:
+                92%;
+
+            max-width:
+                1200px;
+
+            margin:
+                30px auto;
+        }
+
+
+        /* =========================================
+           CARD
+        ========================================= */
+
+        .card {
+
+            background:
+                white;
+
+            border:
+                1px solid #e2e8f0;
+
+            border-radius:
+                14px;
+
+            padding:
+                24px;
+
+            margin-bottom:
+                24px;
+
+            box-shadow:
+                0 4px 15px
+                rgba(15,23,42,0.06);
+        }
+
+
+        .card h2 {
+
+            margin-top:
+                0;
+        }
+
+
+        /* =========================================
+           LABEL
+        ========================================= */
+
+        label {
+
+            display:
+                block;
+
+            font-weight:
+                600;
+
+            margin:
+                15px 0 7px;
+        }
+
+
+        /* =========================================
+           INPUT
+        ========================================= */
+
+        select,
+        textarea {
+
+            width:
+                100%;
+
+            padding:
+                13px;
+
+            border:
+                1px solid #cbd5e1;
+
+            border-radius:
+                9px;
+
+            font-size:
+                15px;
+
+            background:
+                white;
+        }
+
+
+        textarea {
+
+            min-height:
+                180px;
+
+            resize:
+                vertical;
+        }
+
+
+        select:focus,
+        textarea:focus {
+
+            outline:
+                none;
+
+            border-color:
+                #2563eb;
+        }
+
+
+        /* =========================================
+           BUTTONS
+        ========================================= */
+
+        .button-row {
+
+            display:
+                flex;
+
+            gap:
+                12px;
+
+            margin-top:
+                18px;
+
+            flex-wrap:
+                wrap;
+        }
+
+
+        button {
+
+            border:
+                none;
+
+            border-radius:
+                9px;
+
+            padding:
+                13px 22px;
+
+            font-size:
+                15px;
+
+            font-weight:
+                600;
+
+            cursor:
+                pointer;
+        }
+
+
+        #analyzeBtn {
+
+            background:
+                #2563eb;
+
+            color:
+                white;
+        }
+
+
+        #analyzeBtn:hover {
+
+            background:
+                #1d4ed8;
+        }
+
+
+        #clearBtn {
+
+            background:
+                #e2e8f0;
+
+            color:
+                #0f172a;
+        }
+
+
+        #refreshDashboard {
+
+            background:
+                #2563eb;
+
+            color:
+                white;
+        }
+
+
+        button:disabled {
+
+            opacity:
+                0.6;
+
+            cursor:
+                not-allowed;
+        }
+
+
+        /* =========================================
+           MESSAGES
+        ========================================= */
+
+        .hidden {
+
+            display:
+                none !important;
+        }
+
+
+        #loadingMessage {
+
+            margin-top:
+                15px;
+
+            color:
+                #2563eb;
+
+            font-weight:
+                600;
+        }
+
+
+        #errorMessage {
+
+            margin-top:
+                15px;
+
+            padding:
+                12px;
+
+            background:
+                #fee2e2;
+
+            color:
+                #991b1b;
+
+            border-radius:
+                8px;
+        }
+
+
+        /* =========================================
+           RESULT
+        ========================================= */
+
+        .result-top {
+
+            display:
+                grid;
+
+            grid-template-columns:
+                repeat(3, 1fr);
+
+            gap:
+                15px;
+        }
+
+
+        .result-box {
+
+            border:
+                1px solid #e2e8f0;
+
+            border-radius:
+                10px;
+
+            padding:
+                18px;
+
+            text-align:
+                center;
+        }
+
+
+        .result-box span {
+
+            display:
+                block;
+
+            font-size:
+                13px;
+
+            color:
+                #64748b;
+
+            margin-bottom:
+                7px;
+        }
+
+
+        .result-box strong {
+
+            font-size:
+                25px;
+        }
+
+
+        .section {
+
+            margin-top:
+                25px;
+        }
+
+
+        .section h3 {
+
+            margin-bottom:
+                10px;
+        }
+
+
+        ul {
+
+            padding-left:
+                22px;
+        }
+
+
+        li {
+
+            margin:
+                7px 0;
+        }
+
+
+        .score-grid {
+
+            display:
+                grid;
+
+            grid-template-columns:
+                repeat(3, 1fr);
+
+            gap:
+                15px;
+
+            margin-top:
+                15px;
+        }
+
+
+        .score-card {
+
+            background:
+                #f8fafc;
+
+            border:
+                1px solid #e2e8f0;
+
+            padding:
+                15px;
+
+            border-radius:
+                10px;
+
+            text-align:
+                center;
+        }
+
+
+        .score-card span {
+
+            display:
+                block;
+
+            color:
+                #64748b;
+
+            font-size:
+                13px;
+
+            margin-bottom:
+                6px;
+        }
+
+
+        .score-card strong {
+
+            font-size:
+                22px;
+        }
+
+
+        .original-report {
+
+            background:
+                #f8fafc;
+
+            padding:
+                15px;
+
+            border-radius:
+                9px;
+
+            border-left:
+                4px solid #2563eb;
+        }
+
+
+        /* =========================================
+           DASHBOARD STATS
+        ========================================= */
+
+        .stats {
+
+            display:
+                grid;
+
+            grid-template-columns:
+                repeat(5, 1fr);
+
+            gap:
+                15px;
+        }
+
+
+        .stat {
+
+            padding:
+                20px;
+
+            border-radius:
+                12px;
+
+            background:
+                white;
+
+            border:
+                1px solid #e2e8f0;
+
+            text-align:
+                center;
+        }
+
+
+        .stat span {
+
+            display:
+                block;
+
+            color:
+                #64748b;
+
+            font-size:
+                14px;
+
+            margin-bottom:
+                8px;
+        }
+
+
+        .stat strong {
+
+            font-size:
+                28px;
+        }
+
+
+        /* =========================================
+           RISK DISTRIBUTION
+        ========================================= */
+
+        .risk-bar {
+
+            margin:
+                16px 0;
+        }
+
+
+        .risk-bar-label {
+
+            display:
+                flex;
+
+            justify-content:
+                space-between;
+
+            margin-bottom:
+                7px;
+
+            font-weight:
+                600;
+        }
+
+
+        .bar-container {
+
+            height:
+                12px;
+
+            background:
+                #e2e8f0;
+
+            border-radius:
+                20px;
+
+            overflow:
+                hidden;
+        }
+
+
+        .bar {
+
+            height:
+                100%;
+
+            background:
+                #2563eb;
+
+            border-radius:
+                20px;
+        }
+
+
+        /* =========================================
+           DASHBOARD GRID
+        ========================================= */
+
+        .dashboard-grid {
+
+            display:
+                grid;
+
+            grid-template-columns:
+                1fr 1fr;
+
+            gap:
+                24px;
+        }
+
+
+        /* =========================================
+           TABLE
+        ========================================= */
+
+        .table-wrapper {
+
+            overflow-x:
+                auto;
+        }
+
+
+        table {
+
+            width:
+                100%;
+
+            border-collapse:
+                collapse;
+
+            min-width:
+                700px;
+        }
+
+
+        th,
+        td {
+
+            padding:
+                13px;
+
+            border-bottom:
+                1px solid #e2e8f0;
+
+            text-align:
+                left;
+
+            vertical-align:
+                top;
+        }
+
+
+        th {
+
+            background:
+                #f8fafc;
+
+            font-size:
+                14px;
+        }
+
+
+        td {
+
+            font-size:
+                14px;
+        }
+
+
+        /* =========================================
+           BADGES
+        ========================================= */
+
+        .badge {
+
+            display:
+                inline-block;
+
+            padding:
+                5px 9px;
+
+            border-radius:
+                20px;
+
+            font-size:
+                12px;
+
+            font-weight:
+                700;
+        }
+
+
+        .badge-critical {
+
+            background:
+                #fee2e2;
+
+            color:
+                #b91c1c;
+        }
+
+
+        .badge-high {
+
+            background:
+                #ffedd5;
+
+            color:
+                #c2410c;
+        }
+
+
+        .badge-medium {
+
+            background:
+                #fef3c7;
+
+            color:
+                #a16207;
+        }
+
+
+        .badge-low {
+
+            background:
+                #dcfce7;
+
+            color:
+                #15803d;
+        }
+
+
+        /* =========================================
+           RESPONSIVE
+        ========================================= */
+
+        @media (
+            max-width: 800px
+        ) {
+
+            .result-top {
+
+                grid-template-columns:
+                    1fr;
+            }
+
+
+            .score-grid {
+
+                grid-template-columns:
+                    1fr;
+            }
+
+
+            .stats {
+
+                grid-template-columns:
+                    repeat(2, 1fr);
+            }
+
+
+            .dashboard-grid {
+
+                grid-template-columns:
+                    1fr;
+            }
+        }
+
+    </style>
+
 </head>
+
 
 <body>
 
-    <!-- =====================================================
+
+    <!-- =========================================
          HEADER
-    ====================================================== -->
+    ========================================== -->
 
-    <header class="header">
+    <header>
 
-        <div class="header-content">
+        <h1>
+            OIL SIF Safety Intelligence Engine
+        </h1>
 
-            <div>
-                <h1>OIL SIF Safety Intelligence Engine</h1>
-
-                <p>
-                    AI/NLP-assisted detection of Serious Injury & Fatality precursors
-                </p>
-            </div>
-
-            <div class="status">
-                <span class="status-dot"></span>
-                System Online
-            </div>
-
-        </div>
+        <p>
+            AI/NLP-assisted detection of Serious Injury & Fatality precursors
+        </p>
 
     </header>
 
@@ -42,215 +798,89 @@
     <main class="container">
 
 
-        <!-- =====================================================
-             SUBMIT SAFETY REPORT
-        ====================================================== -->
+        <!-- ======================================
+             SUBMIT REPORT
+        ======================================= -->
 
-        <section class="card">
+        <div class="card">
 
-            <div class="section-title">
+            <h2>
+                Submit Safety Report
+            </h2>
 
-                <h2>Submit Safety Report</h2>
+            <p>
+                Enter an unsafe-act, unsafe-condition or near-miss report.
+            </p>
 
-                <p>
-                    Analyze Unsafe Acts, Unsafe Conditions and Near-Miss Reports
-                </p>
 
-            </div>
+            <label>
+                Quick Demo Scenario
+            </label>
 
 
-            <!-- FORM GRID -->
+            <select id="demoSelect">
 
-            <div class="form-grid">
+                <option value="">
+                    Select a demo scenario
+                </option>
 
+                <option value="confined">
+                    Confined Space
+                </option>
 
-                <!-- REPORTER ROLE -->
+                <option value="electrical">
+                    Electrical / LOTO
+                </option>
 
-                <div class="form-group">
+                <option value="height">
+                    Working at Height
+                </option>
 
-                    <label for="reporterRole">
-                        Reporter Role
-                    </label>
+                <option value="hydrocarbon">
+                    Hydrocarbon Leak
+                </option>
 
-                    <select id="reporterRole">
+                <option value="ppe">
+                    PPE Violation
+                </option>
 
-                        <option value="Worker / Employee">
-                            Worker / Employee
-                        </option>
+                <option value="vessel">
+                    Vessel Entry
+                </option>
 
-                        <option value="Supervisor / Shift In-charge">
-                            Supervisor / Shift In-charge
-                        </option>
+                <option value="energized">
+                    Energized Electrical Work
+                </option>
 
-                        <option value="Safety / HSE Officer">
-                            Safety / HSE Officer
-                        </option>
+                <option value="ventilation">
+                    Poor Ventilation
+                </option>
 
-                        <option value="Maintenance / Operations">
-                            Maintenance / Operations
-                        </option>
+            </select>
 
-                        <option value="Manager">
-                            Manager
-                        </option>
 
-                    </select>
+            <label>
+                Safety Report
+            </label>
 
-                </div>
 
+            <textarea
+                id="reportInput"
+                placeholder="Enter safety report here..."
+            ></textarea>
 
-                <!-- REPORT TYPE -->
-
-                <div class="form-group">
-
-                    <label for="reportType">
-                        Report Type
-                    </label>
-
-                    <select id="reportType">
-
-                        <option value="Unsafe Act">
-                            Unsafe Act
-                        </option>
-
-                        <option value="Unsafe Condition">
-                            Unsafe Condition
-                        </option>
-
-                        <option value="Near Miss">
-                            Near Miss
-                        </option>
-
-                    </select>
-
-                </div>
-
-
-                <!-- LOCATION -->
-
-                <div class="form-group">
-
-                    <label for="locationInput">
-                        Location
-                    </label>
-
-                    <input
-                        type="text"
-                        id="locationInput"
-                        placeholder="Example: Refinery Area / Tank Farm / Workshop"
-                    >
-
-                </div>
-
-
-                <!-- WORK ACTIVITY -->
-
-                <div class="form-group">
-
-                    <label for="workActivity">
-                        Work Activity
-                    </label>
-
-                    <input
-                        type="text"
-                        id="workActivity"
-                        placeholder="Example: Maintenance / Vessel Entry / Hot Work"
-                    >
-
-                </div>
-
-            </div>
-
-
-            <!-- =================================================
-                 QUICK DEMO
-            ================================================== -->
-
-            <div class="form-group">
-
-                <label for="demoSelect">
-                    Quick Demo Scenario
-                </label>
-
-                <select id="demoSelect">
-
-                    <option value="">
-                        -- Select Demo Scenario --
-                    </option>
-
-                    <option value="confined">
-                        Confined Space
-                    </option>
-
-                    <option value="electrical">
-                        Electrical / LOTO
-                    </option>
-
-                    <option value="height">
-                        Working at Height
-                    </option>
-
-                    <option value="hydrocarbon">
-                        Hydrocarbon Leak
-                    </option>
-
-                    <option value="ppe">
-                        PPE Violation
-                    </option>
-
-                    <option value="vessel">
-                        Vessel Entry
-                    </option>
-
-                    <option value="energized">
-                        Energized Electrical Work
-                    </option>
-
-                    <option value="ventilation">
-                        Poor Ventilation
-                    </option>
-
-                </select>
-
-            </div>
-
-
-            <!-- =================================================
-                 SAFETY REPORT
-            ================================================== -->
-
-            <div class="form-group">
-
-                <label for="reportInput">
-                    Safety Report
-                </label>
-
-                <textarea
-                    id="reportInput"
-                    rows="7"
-                    placeholder="Enter the safety report here...
-
-Example:
-Worker entered a confined space without gas testing and without permit."
-                ></textarea>
-
-            </div>
-
-
-            <!-- BUTTONS -->
 
             <div class="button-row">
 
                 <button
                     id="analyzeBtn"
-                    class="primary-btn"
                 >
                     🔍 Analyze Safety Report
                 </button>
 
+
                 <button
                     id="clearBtn"
-                    class="secondary-btn"
                 >
                     Clear
                 </button>
@@ -258,54 +888,45 @@ Worker entered a confined space without gas testing and without permit."
             </div>
 
 
-            <!-- LOADING -->
-
             <div
                 id="loadingMessage"
-                class="loading hidden"
+                class="hidden"
             >
                 Analyzing safety report...
             </div>
 
 
-            <!-- ERROR -->
-
             <div
                 id="errorMessage"
-                class="error hidden"
+                class="hidden"
             ></div>
 
-        </section>
+        </div>
 
 
-        <!-- =====================================================
-             SAFETY INTELLIGENCE RESULT
-        ====================================================== -->
+        <!-- ======================================
+             RESULT
+        ======================================= -->
 
-        <section
+        <div
             id="resultSection"
             class="card hidden"
         >
 
-            <div class="section-title">
+            <h2>
+                Safety Intelligence Result
+            </h2>
 
-                <h2>Safety Intelligence Result</h2>
-
-                <p>
-                    Explainable analysis of the submitted safety report
-                </p>
-
-            </div>
+            <p>
+                Explainable analysis of the submitted safety report
+            </p>
 
 
-            <!-- RESULT SUMMARY -->
-
-            <div class="result-grid">
-
+            <div class="result-top">
 
                 <div class="result-box">
 
-                    <span class="result-label">
+                    <span>
                         Risk Score
                     </span>
 
@@ -318,7 +939,7 @@ Worker entered a confined space without gas testing and without permit."
 
                 <div class="result-box">
 
-                    <span class="result-label">
+                    <span>
                         Risk Level
                     </span>
 
@@ -331,7 +952,7 @@ Worker entered a confined space without gas testing and without permit."
 
                 <div class="result-box">
 
-                    <span class="result-label">
+                    <span>
                         Category
                     </span>
 
@@ -344,9 +965,7 @@ Worker entered a confined space without gas testing and without permit."
             </div>
 
 
-            <!-- ANALYSIS -->
-
-            <div class="result-section">
+            <div class="section">
 
                 <h3>
                     Analysis
@@ -359,9 +978,7 @@ Worker entered a confined space without gas testing and without permit."
             </div>
 
 
-            <!-- WHY RISK -->
-
-            <div class="result-section">
+            <div class="section">
 
                 <h3>
                     Why is this Risky?
@@ -372,9 +989,7 @@ Worker entered a confined space without gas testing and without permit."
             </div>
 
 
-            <!-- SCORE BREAKDOWN -->
-
-            <div class="result-section">
+            <div class="section">
 
                 <h3>
                     Risk Score Breakdown
@@ -383,40 +998,40 @@ Worker entered a confined space without gas testing and without permit."
 
                 <div class="score-grid">
 
-                    <div>
+                    <div class="score-card">
 
                         <span>
                             Base Score
                         </span>
 
                         <strong id="baseScore">
-                            -
+                            0
                         </strong>
 
                     </div>
 
 
-                    <div>
+                    <div class="score-card">
 
                         <span>
                             Detected Points
                         </span>
 
                         <strong id="detectedPoints">
-                            -
+                            0
                         </strong>
 
                     </div>
 
 
-                    <div>
+                    <div class="score-card">
 
                         <span>
                             Final Score
                         </span>
 
                         <strong id="finalScore">
-                            -
+                            0
                         </strong>
 
                     </div>
@@ -429,9 +1044,7 @@ Worker entered a confined space without gas testing and without permit."
             </div>
 
 
-            <!-- EVIDENCE -->
-
-            <div class="result-section">
+            <div class="section">
 
                 <h3>
                     Detected Evidence
@@ -442,9 +1055,7 @@ Worker entered a confined space without gas testing and without permit."
             </div>
 
 
-            <!-- SIF PRECURSORS -->
-
-            <div class="result-section">
+            <div class="section">
 
                 <h3>
                     SIF Precursors
@@ -455,9 +1066,7 @@ Worker entered a confined space without gas testing and without permit."
             </div>
 
 
-            <!-- CONSEQUENCES -->
-
-            <div class="result-section">
+            <div class="section">
 
                 <h3>
                     Potential Consequences
@@ -468,9 +1077,7 @@ Worker entered a confined space without gas testing and without permit."
             </div>
 
 
-            <!-- ACTIONS -->
-
-            <div class="result-section">
+            <div class="section">
 
                 <h3>
                     Recommended Corrective Actions
@@ -481,9 +1088,7 @@ Worker entered a confined space without gas testing and without permit."
             </div>
 
 
-            <!-- ORIGINAL REPORT -->
-
-            <div class="result-section">
+            <div class="section">
 
                 <h3>
                     Original Report
@@ -496,217 +1101,196 @@ Worker entered a confined space without gas testing and without permit."
 
             </div>
 
-        </section>
+        </div>
 
 
-        <!-- =====================================================
+        <!-- ======================================
              DASHBOARD
-        ====================================================== -->
+        ======================================= -->
 
-        <section class="card">
+        <div class="card">
 
-            <div class="dashboard-header">
+            <h2>
+                Safety Intelligence Dashboard
+            </h2>
 
-                <div>
-
-                    <h2>
-                        Safety Intelligence Dashboard
-                    </h2>
-
-                    <p>
-                        Overview of analyzed safety reports
-                    </p>
-
-                </div>
+            <p>
+                Overview of analyzed safety reports
+            </p>
 
 
-                <button
-                    id="refreshDashboard"
-                    class="secondary-btn"
-                >
-                    Refresh Dashboard
-                </button>
+            <button
+                id="refreshDashboard"
+            >
+                Refresh Dashboard
+            </button>
 
-            </div>
-
-
-            <!-- STATISTICS -->
-
-            <div class="stats-grid">
+        </div>
 
 
-                <div class="stat-card">
+        <div class="stats">
 
-                    <span>
-                        Total Reports
-                    </span>
+            <div class="stat">
 
-                    <strong id="totalReports">
-                        0
-                    </strong>
+                <span>
+                    Total Reports
+                </span>
 
-                </div>
-
-
-                <div class="stat-card critical">
-
-                    <span>
-                        Critical
-                    </span>
-
-                    <strong id="criticalCount">
-                        0
-                    </strong>
-
-                </div>
-
-
-                <div class="stat-card high">
-
-                    <span>
-                        High
-                    </span>
-
-                    <strong id="highCount">
-                        0
-                    </strong>
-
-                </div>
-
-
-                <div class="stat-card medium">
-
-                    <span>
-                        Medium
-                    </span>
-
-                    <strong id="mediumCount">
-                        0
-                    </strong>
-
-                </div>
-
-
-                <div class="stat-card low">
-
-                    <span>
-                        Low
-                    </span>
-
-                    <strong id="lowCount">
-                        0
-                    </strong>
-
-                </div>
+                <strong id="totalReports">
+                    0
+                </strong>
 
             </div>
 
 
-            <!-- RISK DISTRIBUTION -->
+            <div class="stat">
 
-            <div class="dashboard-section">
+                <span>
+                    Critical
+                </span>
 
-                <h3>
+                <strong id="criticalCount">
+                    0
+                </strong>
+
+            </div>
+
+
+            <div class="stat">
+
+                <span>
+                    High
+                </span>
+
+                <strong id="highCount">
+                    0
+                </strong>
+
+            </div>
+
+
+            <div class="stat">
+
+                <span>
+                    Medium
+                </span>
+
+                <strong id="mediumCount">
+                    0
+                </strong>
+
+            </div>
+
+
+            <div class="stat">
+
+                <span>
+                    Low
+                </span>
+
+                <strong id="lowCount">
+                    0
+                </strong>
+
+            </div>
+
+        </div>
+
+
+        <br>
+
+
+        <div class="dashboard-grid">
+
+
+            <!-- Risk Distribution -->
+
+            <div class="card">
+
+                <h2>
                     Risk Distribution
-                </h3>
+                </h2>
 
                 <div id="riskBars"></div>
 
             </div>
 
 
-            <!-- PRECURSOR FREQUENCY -->
+            <!-- Precursor -->
 
-            <div class="dashboard-section">
+            <div class="card">
 
-                <h3>
+                <h2>
                     SIF Precursor Frequency
-                </h3>
+                </h2>
 
-                <div id="precursorCounts"></div>
-
-            </div>
-
-
-            <!-- RECENT REPORTS -->
-
-            <div class="dashboard-section">
-
-                <h3>
-                    Recent Safety Reports
-                </h3>
-
-
-                <div class="table-wrapper">
-
-                    <table>
-
-                        <thead>
-
-                            <tr>
-
-                                <th>ID</th>
-
-                                <th>Reporter</th>
-
-                                <th>Report Type</th>
-
-                                <th>Location</th>
-
-                                <th>Risk</th>
-
-                                <th>Category</th>
-
-                                <th>Precursors</th>
-
-                            </tr>
-
-                        </thead>
-
-
-                        <tbody id="recentReports">
-
-                            <tr>
-
-                                <td colspan="7">
-                                    Loading reports...
-                                </td>
-
-                            </tr>
-
-                        </tbody>
-
-                    </table>
-
-                </div>
+                <div
+                    id="precursorCounts"
+                ></div>
 
             </div>
 
-        </section>
+        </div>
+
+
+        <!-- ======================================
+             RECENT REPORTS
+        ======================================= -->
+
+        <div class="card">
+
+            <h2>
+                Recent Safety Reports
+            </h2>
+
+
+            <div class="table-wrapper">
+
+                <table>
+
+                    <thead>
+
+                        <tr>
+
+                            <th>
+                                ID
+                            </th>
+
+                            <th>
+                                Report
+                            </th>
+
+                            <th>
+                                Risk
+                            </th>
+
+                            <th>
+                                Category
+                            </th>
+
+                            <th>
+                                Precursors
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody
+                        id="recentReports"
+                    >
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
 
     </main>
 
-
-    <!-- =====================================================
-         FOOTER
-    ====================================================== -->
-
-    <footer class="footer">
-
-        <p>
-            OIL SIF Safety Intelligence Engine
-            | SIH26-165
-            | SUPER CREW
-        </p>
-
-        <p>
-            Prototype for safety decision support
-        </p>
-
-    </footer>
-
-
-    <!-- JAVASCRIPT -->
 
     <script src="script.js"></script>
 

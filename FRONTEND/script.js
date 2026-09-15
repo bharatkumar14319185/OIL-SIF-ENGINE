@@ -1,4 +1,5 @@
-const API_BASE_URL = "https://oil-sif-engine.onrender.com";
+const API_BASE_URL =
+    "https://oil-sif-engine.onrender.com";
 
 
 // =====================================================
@@ -30,6 +31,7 @@ const demoReports = {
 
     ventilation:
         "Poor ventilation was observed inside a confined space before entry."
+
 };
 
 
@@ -49,23 +51,6 @@ const analyzeBtn =
 const clearBtn =
     document.getElementById("clearBtn");
 
-const reporterRole =
-    document.getElementById("reporterRole");
-
-const reportType =
-    document.getElementById("reportType");
-
-
-// IMPORTANT:
-// HTML uses id="locationInput"
-
-const locationInput =
-    document.getElementById("locationInput");
-
-
-const workActivity =
-    document.getElementById("workActivity");
-
 const resultSection =
     document.getElementById("resultSection");
 
@@ -75,45 +60,9 @@ const loadingMessage =
 const errorMessage =
     document.getElementById("errorMessage");
 
-const refreshDashboardBtn =
-    document.getElementById("refreshDashboard");
-
 
 // =====================================================
-// CHECK REQUIRED ELEMENTS
-// =====================================================
-
-const requiredElements = {
-
-    reportInput,
-    demoSelect,
-    analyzeBtn,
-    clearBtn,
-    reporterRole,
-    reportType,
-    locationInput,
-    workActivity,
-    resultSection,
-    loadingMessage,
-    errorMessage
-};
-
-
-Object.entries(requiredElements).forEach(
-    ([name, element]) => {
-
-        if (!element) {
-
-            console.error(
-                `HTML element not found: ${name}`
-            );
-        }
-    }
-);
-
-
-// =====================================================
-// DEMO SCENARIO SELECT
+// DEMO SELECT
 // =====================================================
 
 if (demoSelect) {
@@ -136,185 +85,23 @@ if (demoSelect) {
             }
 
 
-            // Fill safety report
-
             reportInput.value =
                 demoReports[selected];
 
 
-            // -----------------------------------------
-            // CONFined SPACE
-            // -----------------------------------------
+            resultSection.classList.add(
+                "hidden"
+            );
 
-            if (selected === "confined") {
-
-                reporterRole.value =
-                    "Worker / Employee";
-
-                reportType.value =
-                    "Unsafe Act";
-
-                locationInput.value =
-                    "Confined Space Area";
-
-                workActivity.value =
-                    "Confined Space Entry";
-            }
-
-
-            // -----------------------------------------
-            // ELECTRICAL
-            // -----------------------------------------
-
-            else if (selected === "electrical") {
-
-                reporterRole.value =
-                    "Supervisor / Shift In-charge";
-
-                reportType.value =
-                    "Unsafe Act";
-
-                locationInput.value =
-                    "Electrical Panel Area";
-
-                workActivity.value =
-                    "Electrical Maintenance";
-            }
-
-
-            // -----------------------------------------
-            // WORKING AT HEIGHT
-            // -----------------------------------------
-
-            else if (selected === "height") {
-
-                reporterRole.value =
-                    "Safety / HSE Officer";
-
-                reportType.value =
-                    "Unsafe Condition";
-
-                locationInput.value =
-                    "Construction Area";
-
-                workActivity.value =
-                    "Working at Height";
-            }
-
-
-            // -----------------------------------------
-            // HYDROCARBON
-            // -----------------------------------------
-
-            else if (selected === "hydrocarbon") {
-
-                reporterRole.value =
-                    "Worker / Employee";
-
-                reportType.value =
-                    "Near Miss";
-
-                locationInput.value =
-                    "Hot Work Area";
-
-                workActivity.value =
-                    "Hot Work";
-            }
-
-
-            // -----------------------------------------
-            // PPE
-            // -----------------------------------------
-
-            else if (selected === "ppe") {
-
-                reporterRole.value =
-                    "Worker / Employee";
-
-                reportType.value =
-                    "Unsafe Act";
-
-                locationInput.value =
-                    "Chemical Handling Area";
-
-                workActivity.value =
-                    "Hazardous Material Handling";
-            }
-
-
-            // -----------------------------------------
-            // VESSEL
-            // -----------------------------------------
-
-            else if (selected === "vessel") {
-
-                reporterRole.value =
-                    "Supervisor / Shift In-charge";
-
-                reportType.value =
-                    "Unsafe Act";
-
-                locationInput.value =
-                    "Vessel Area";
-
-                workActivity.value =
-                    "Vessel Entry";
-            }
-
-
-            // -----------------------------------------
-            // ENERGIZED ELECTRICAL
-            // -----------------------------------------
-
-            else if (selected === "energized") {
-
-                reporterRole.value =
-                    "Maintenance / Operations";
-
-                reportType.value =
-                    "Unsafe Act";
-
-                locationInput.value =
-                    "Electrical Maintenance Area";
-
-                workActivity.value =
-                    "Electrical Maintenance";
-            }
-
-
-            // -----------------------------------------
-            // POOR VENTILATION
-            // -----------------------------------------
-
-            else if (selected === "ventilation") {
-
-                reporterRole.value =
-                    "Safety / HSE Officer";
-
-                reportType.value =
-                    "Unsafe Condition";
-
-                locationInput.value =
-                    "Confined Space";
-
-                workActivity.value =
-                    "Confined Space Inspection";
-            }
-
-
-            // Hide old result
-
-            resultSection.classList.add("hidden");
 
             hideError();
-
         }
     );
 }
 
 
 // =====================================================
-// CLEAR FORM
+// CLEAR
 // =====================================================
 
 if (clearBtn) {
@@ -325,17 +112,9 @@ if (clearBtn) {
 
             reportInput.value = "";
 
-            locationInput.value = "";
-
-            workActivity.value = "";
-
-            demoSelect.value = "";
-
-            reporterRole.value =
-                "Worker / Employee";
-
-            reportType.value =
-                "Unsafe Act";
+            if (demoSelect) {
+                demoSelect.value = "";
+            }
 
             resultSection.classList.add(
                 "hidden"
@@ -349,7 +128,7 @@ if (clearBtn) {
 
 
 // =====================================================
-// SHOW ERROR
+// ERROR
 // =====================================================
 
 function showError(message) {
@@ -384,7 +163,7 @@ function hideError() {
 
 
 // =====================================================
-// ANALYZE SAFETY REPORT
+// ANALYZE REPORT
 // =====================================================
 
 async function analyzeReport() {
@@ -392,8 +171,6 @@ async function analyzeReport() {
     const report =
         reportInput.value.trim();
 
-
-    // Validate
 
     if (!report) {
 
@@ -408,15 +185,15 @@ async function analyzeReport() {
     hideError();
 
 
-    // Loading
-
     loadingMessage.classList.remove(
         "hidden"
     );
 
+
     resultSection.classList.add(
         "hidden"
     );
+
 
     analyzeBtn.disabled = true;
 
@@ -425,10 +202,6 @@ async function analyzeReport() {
 
 
     try {
-
-        // =========================================
-        // SEND DATA
-        // =========================================
 
         const response =
             await fetch(
@@ -445,29 +218,11 @@ async function analyzeReport() {
                     },
 
                     body: JSON.stringify({
-
-                        report:
-                            report,
-
-                        reporter_role:
-                            reporterRole.value,
-
-                        report_type:
-                            reportType.value,
-
-                        location:
-                            locationInput.value,
-
-                        work_activity:
-                            workActivity.value
+                        report: report
                     })
                 }
             );
 
-
-        // =========================================
-        // CHECK RESPONSE
-        // =========================================
 
         if (!response.ok) {
 
@@ -477,23 +232,9 @@ async function analyzeReport() {
         }
 
 
-        // =========================================
-        // JSON
-        // =========================================
-
         const data =
             await response.json();
 
-
-        console.log(
-            "Analysis result:",
-            data
-        );
-
-
-        // =========================================
-        // RENDER
-        // =========================================
 
         renderResult(data);
 
@@ -503,16 +244,10 @@ async function analyzeReport() {
         );
 
 
-        // =========================================
-        // DASHBOARD
-        // =========================================
+        // Refresh dashboard
 
         await loadDashboard();
 
-
-        // =========================================
-        // SCROLL
-        // =========================================
 
         resultSection.scrollIntoView({
             behavior: "smooth",
@@ -552,129 +287,180 @@ async function analyzeReport() {
 
 
 // =====================================================
-// RENDER ANALYSIS RESULT
+// RENDER RESULT
 // =====================================================
 
 function renderResult(data) {
 
-    document.getElementById(
-        "riskScore"
-    ).textContent =
-        data.risk_score ?? "-";
-
-
-    document.getElementById(
-        "riskLevel"
-    ).textContent =
-        data.risk_level ?? "-";
-
-
-    document.getElementById(
-        "category"
-    ).textContent =
-        data.category ?? "-";
-
-
-    document.getElementById(
-        "analysisText"
-    ).textContent =
-        data.analysis ?? "-";
-
-
-    document.getElementById(
-        "baseScore"
-    ).textContent =
-        data.base_score ?? 0;
-
-
-    document.getElementById(
-        "detectedPoints"
-    ).textContent =
-        data.detected_points ?? 0;
-
-
-    document.getElementById(
-        "finalScore"
-    ).textContent =
-        data.risk_score ?? 0;
-
-
-    document.getElementById(
-        "originalReport"
-    ).textContent =
-        data.original_report ??
-        reportInput.value;
-
-
-    // =========================================
-    // RISK COLOR
-    // =========================================
+    const riskScore =
+        document.getElementById(
+            "riskScore"
+        );
 
     const riskLevel =
+        document.getElementById(
+            "riskLevel"
+        );
+
+    const category =
+        document.getElementById(
+            "category"
+        );
+
+
+    if (riskScore) {
+
+        riskScore.textContent =
+            data.risk_score ?? "-";
+    }
+
+
+    if (riskLevel) {
+
+        riskLevel.textContent =
+            data.risk_level ?? "-";
+    }
+
+
+    if (category) {
+
+        category.textContent =
+            data.category ?? "-";
+    }
+
+
+    // -----------------------------------------------
+    // Analysis
+    // -----------------------------------------------
+
+    const analysisText =
+        document.getElementById(
+            "analysisText"
+        );
+
+
+    if (analysisText) {
+
+        analysisText.textContent =
+            data.analysis ?? "-";
+    }
+
+
+    // -----------------------------------------------
+    // Score
+    // -----------------------------------------------
+
+    setText(
+        "baseScore",
+        data.base_score ?? 0
+    );
+
+
+    setText(
+        "detectedPoints",
+        data.detected_points ?? 0
+    );
+
+
+    setText(
+        "finalScore",
+        data.risk_score ?? 0
+    );
+
+
+    // -----------------------------------------------
+    // Original Report
+    // -----------------------------------------------
+
+    setText(
+        "originalReport",
+        data.original_report ??
+        reportInput.value
+    );
+
+
+    // -----------------------------------------------
+    // Risk Colour
+    // -----------------------------------------------
+
+    const level =
         String(
             data.risk_level || ""
         ).toUpperCase();
 
 
-    const riskScoreElement =
-        document.getElementById(
-            "riskScore"
-        );
-
-
-    const riskLevelElement =
-        document.getElementById(
-            "riskLevel"
-        );
-
-
-    riskScoreElement.style.color =
-        "";
-
-    riskLevelElement.style.color =
-        "";
-
-
-    if (riskLevel === "CRITICAL") {
-
-        riskScoreElement.style.color =
-            "#dc2626";
-
-        riskLevelElement.style.color =
-            "#dc2626";
-    }
-
-    else if (riskLevel === "HIGH") {
-
-        riskScoreElement.style.color =
-            "#ea580c";
-
-        riskLevelElement.style.color =
-            "#ea580c";
-    }
-
-    else if (riskLevel === "MEDIUM") {
-
-        riskScoreElement.style.color =
-            "#ca8a04";
-
-        riskLevelElement.style.color =
-            "#ca8a04";
-    }
-
-    else if (riskLevel === "LOW") {
-
-        riskScoreElement.style.color =
-            "#16a34a";
-
-        riskLevelElement.style.color =
-            "#16a34a";
+    if (riskScore) {
+        riskScore.style.color = "";
     }
 
 
-    // =========================================
-    // LISTS
-    // =========================================
+    if (riskLevel) {
+        riskLevel.style.color = "";
+    }
+
+
+    if (level === "CRITICAL") {
+
+        if (riskScore) {
+            riskScore.style.color =
+                "#dc2626";
+        }
+
+        if (riskLevel) {
+            riskLevel.style.color =
+                "#dc2626";
+        }
+
+    }
+
+
+    else if (level === "HIGH") {
+
+        if (riskScore) {
+            riskScore.style.color =
+                "#ea580c";
+        }
+
+        if (riskLevel) {
+            riskLevel.style.color =
+                "#ea580c";
+        }
+
+    }
+
+
+    else if (level === "MEDIUM") {
+
+        if (riskScore) {
+            riskScore.style.color =
+                "#ca8a04";
+        }
+
+        if (riskLevel) {
+            riskLevel.style.color =
+                "#ca8a04";
+        }
+
+    }
+
+
+    else if (level === "LOW") {
+
+        if (riskScore) {
+            riskScore.style.color =
+                "#16a34a";
+        }
+
+        if (riskLevel) {
+            riskLevel.style.color =
+                "#16a34a";
+        }
+    }
+
+
+    // -----------------------------------------------
+    // Lists
+    // -----------------------------------------------
 
     renderList(
         "whyRiskList",
@@ -713,6 +499,24 @@ function renderResult(data) {
 
 
 // =====================================================
+// SET TEXT
+// =====================================================
+
+function setText(id, value) {
+
+    const element =
+        document.getElementById(id);
+
+
+    if (element) {
+
+        element.textContent =
+            value;
+    }
+}
+
+
+// =====================================================
 // GENERIC LIST
 // =====================================================
 
@@ -728,11 +532,6 @@ function renderList(
 
 
     if (!element) {
-
-        console.error(
-            `Element not found: ${elementId}`
-        );
-
         return;
     }
 
@@ -786,7 +585,6 @@ function renderList(
 
 
         element.appendChild(li);
-
     });
 }
 
@@ -804,11 +602,6 @@ function renderBreakdown(items) {
 
 
     if (!element) {
-
-        console.error(
-            "breakdownList not found"
-        );
-
         return;
     }
 
@@ -859,12 +652,11 @@ function renderBreakdown(items) {
         else {
 
             li.textContent =
-                JSON.stringify(item);
+                String(item);
         }
 
 
         element.appendChild(li);
-
     });
 }
 
@@ -881,12 +673,7 @@ async function loadDashboard() {
             await fetch(
                 `${API_BASE_URL}/dashboard`,
                 {
-                    method: "GET",
-                    cache: "no-store",
-                    headers: {
-                        "Accept":
-                            "application/json"
-                    }
+                    cache: "no-store"
                 }
             );
 
@@ -903,15 +690,10 @@ async function loadDashboard() {
             await response.json();
 
 
-        console.log(
-            "Dashboard data:",
-            data
-        );
-
-
         renderDashboard(data);
 
     }
+
 
     catch (error) {
 
@@ -929,37 +711,39 @@ async function loadDashboard() {
 
 function renderDashboard(data) {
 
-    document.getElementById(
-        "totalReports"
-    ).textContent =
-        data.total_reports ?? 0;
+    setText(
+        "totalReports",
+        data.total_reports ?? 0
+    );
 
 
-    document.getElementById(
-        "criticalCount"
-    ).textContent =
-        data.critical ?? 0;
+    setText(
+        "criticalCount",
+        data.critical ?? 0
+    );
 
 
-    document.getElementById(
-        "highCount"
-    ).textContent =
-        data.high ?? 0;
+    setText(
+        "highCount",
+        data.high ?? 0
+    );
 
 
-    document.getElementById(
-        "mediumCount"
-    ).textContent =
-        data.medium ?? 0;
+    setText(
+        "mediumCount",
+        data.medium ?? 0
+    );
 
 
-    document.getElementById(
-        "lowCount"
-    ).textContent =
-        data.low ?? 0;
+    setText(
+        "lowCount",
+        data.low ?? 0
+    );
 
 
-    renderRiskDistribution(data);
+    renderRiskDistribution(
+        data
+    );
 
 
     renderPrecursorCounts(
@@ -1027,7 +811,8 @@ function renderRiskDistribution(data) {
         const percentage =
             total > 0
                 ? (
-                    (risk.value / total) *
+                    risk.value /
+                    total *
                     100
                 ).toFixed(1)
                 : 0;
@@ -1058,7 +843,6 @@ function renderRiskDistribution(data) {
 
             </div>
 
-
             <div class="bar-container">
 
                 <div
@@ -1074,7 +858,6 @@ function renderRiskDistribution(data) {
         container.appendChild(
             wrapper
         );
-
     });
 }
 
@@ -1115,7 +898,8 @@ function renderPrecursorCounts(data) {
 
 
     entries.sort(
-        (a, b) => b[1] - a[1]
+        (a, b) =>
+            b[1] - a[1]
     );
 
 
@@ -1152,7 +936,6 @@ function renderPrecursorCounts(data) {
             container.appendChild(
                 div
             );
-
         }
     );
 }
@@ -1171,11 +954,6 @@ function renderRecentReports(reports) {
 
 
     if (!tbody) {
-
-        console.error(
-            "recentReports element not found in HTML."
-        );
-
         return;
     }
 
@@ -1184,29 +962,32 @@ function renderRecentReports(reports) {
 
 
     if (
-        !Array.isArray(reports) ||
+        !reports ||
         reports.length === 0
     ) {
 
-        tbody.innerHTML = `
+        const row =
+            document.createElement(
+                "tr"
+            );
 
-            <tr>
 
-                <td colspan="7">
-                    No reports available.
-                </td>
+        row.innerHTML = `
 
-            </tr>
+            <td colspan="5">
+                No reports available.
+            </td>
 
         `;
+
+
+        tbody.appendChild(row);
 
         return;
     }
 
 
-    // =========================================
-    // LATEST REPORTS FIRST
-    // =========================================
+    // Latest reports first
 
     const sortedReports =
         [...reports].sort(
@@ -1216,151 +997,110 @@ function renderRecentReports(reports) {
         );
 
 
-    // =========================================
-    // CREATE ROWS
-    // =========================================
+    sortedReports.forEach(report => {
 
-    sortedReports.forEach(
-        report => {
-
-            const row =
-                document.createElement(
-                    "tr"
-                );
-
-
-            const risk =
-                String(
-                    report.risk_level || ""
-                ).toUpperCase();
-
-
-            let badgeClass =
-                "badge-low";
-
-
-            if (
-                risk === "CRITICAL"
-            ) {
-
-                badgeClass =
-                    "badge-critical";
-            }
-
-            else if (
-                risk === "HIGH"
-            ) {
-
-                badgeClass =
-                    "badge-high";
-            }
-
-            else if (
-                risk === "MEDIUM"
-            ) {
-
-                badgeClass =
-                    "badge-medium";
-            }
-
-
-            // =================================
-            // PRECURSORS
-            // =================================
-
-            const precursors =
-                Array.isArray(
-                    report.precursors
-                )
-                    ? report.precursors.join(
-                        ", "
-                    )
-                    : "-";
-
-
-            // =================================
-            // ROW HTML
-            // =================================
-
-            row.innerHTML = `
-
-                <td>
-                    ${escapeHtml(
-                        report.id ?? "-"
-                    )}
-                </td>
-
-
-                <td>
-                    ${escapeHtml(
-                        report.reporter_role ??
-                        "-"
-                    )}
-                </td>
-
-
-                <td>
-                    ${escapeHtml(
-                        report.report_type ??
-                        "-"
-                    )}
-                </td>
-
-
-                <td>
-                    ${escapeHtml(
-                        report.location ||
-                        "-"
-                    )}
-                </td>
-
-
-                <td>
-
-                    <span
-                        class="badge ${badgeClass}"
-                    >
-
-                        ${escapeHtml(
-                            report.risk_level ??
-                            "-"
-                        )}
-
-                        -
-
-                        ${escapeHtml(
-                            report.risk_score ??
-                            0
-                        )}
-
-                    </span>
-
-                </td>
-
-
-                <td>
-                    ${escapeHtml(
-                        report.category ??
-                        "-"
-                    )}
-                </td>
-
-
-                <td>
-                    ${escapeHtml(
-                        precursors
-                    )}
-                </td>
-
-            `;
-
-
-            tbody.appendChild(
-                row
+        const row =
+            document.createElement(
+                "tr"
             );
 
+
+        const risk =
+            String(
+                report.risk_level || ""
+            ).toLowerCase();
+
+
+        let badgeClass =
+            "badge-low";
+
+
+        if (
+            risk === "critical"
+        ) {
+
+            badgeClass =
+                "badge-critical";
+
         }
-    );
+
+        else if (
+            risk === "high"
+        ) {
+
+            badgeClass =
+                "badge-high";
+
+        }
+
+        else if (
+            risk === "medium"
+        ) {
+
+            badgeClass =
+                "badge-medium";
+        }
+
+
+        const precursors =
+            Array.isArray(
+                report.precursors
+            )
+                ? report.precursors.join(
+                    ", "
+                )
+                : "-";
+
+
+        row.innerHTML = `
+
+            <td>
+                ${report.id ?? "-"}
+            </td>
+
+            <td>
+                ${escapeHtml(
+                    report.report ?? "-"
+                )}
+            </td>
+
+            <td>
+
+                <span
+                    class="badge ${badgeClass}"
+                >
+
+                    ${escapeHtml(
+                        report.risk_level ?? "-"
+                    )}
+
+                    -
+
+                    ${report.risk_score ?? 0}
+
+                </span>
+
+            </td>
+
+            <td>
+                ${escapeHtml(
+                    report.category ?? "-"
+                )}
+            </td>
+
+            <td>
+                ${escapeHtml(
+                    precursors
+                )}
+            </td>
+
+        `;
+
+
+        tbody.appendChild(
+            row
+        );
+    });
 }
 
 
@@ -1409,17 +1149,8 @@ function refreshDashboard() {
 }
 
 
-if (refreshDashboardBtn) {
-
-    refreshDashboardBtn.addEventListener(
-        "click",
-        refreshDashboard
-    );
-}
-
-
 // =====================================================
-// ANALYZE BUTTON
+// BUTTON EVENTS
 // =====================================================
 
 if (analyzeBtn) {
@@ -1427,6 +1158,21 @@ if (analyzeBtn) {
     analyzeBtn.addEventListener(
         "click",
         analyzeReport
+    );
+}
+
+
+const refreshButton =
+    document.getElementById(
+        "refreshDashboard"
+    );
+
+
+if (refreshButton) {
+
+    refreshButton.addEventListener(
+        "click",
+        refreshDashboard
     );
 }
 
@@ -1442,8 +1188,10 @@ if (reportInput) {
         function (event) {
 
             if (
-                (event.ctrlKey ||
-                 event.metaKey) &&
+                (
+                    event.ctrlKey ||
+                    event.metaKey
+                ) &&
                 event.key === "Enter"
             ) {
 
