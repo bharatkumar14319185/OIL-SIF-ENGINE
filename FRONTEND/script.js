@@ -1,10 +1,12 @@
 const API_BASE_URL = "https://oil-sif-engine.onrender.com";
 
+
 // ======================================================
 // DEMO SCENARIOS
 // ======================================================
 
 const demoReports = {
+
     confined:
         "Worker entered a confined space without gas testing and without permit.",
 
@@ -14,10 +16,10 @@ const demoReports = {
     height:
         "Worker was working at height without a safety harness and without guardrail.",
 
-    fire:
+    hydrocarbon:
         "A hydrocarbon leak was observed near a hot work area.",
 
-    chemical:
+    ppe:
         "Worker was handling hazardous material without gloves and without helmet.",
 
     vessel:
@@ -38,8 +40,8 @@ const demoReports = {
 const reportInput = document.getElementById("reportInput");
 const analyzeBtn = document.getElementById("analyzeBtn");
 
-const demoSelect =
-    document.getElementById("sampleReport");
+// HTML uses sampleReport
+const demoSelect = document.getElementById("sampleReport");
 
 
 // ======================================================
@@ -113,14 +115,17 @@ if (demoSelect) {
 
             if (reportInput) {
 
-                reportInput.value =
-                    demoReports[selected];
+                // Fill textarea
+                reportInput.value = demoReports[selected];
 
+                // Hide previous result
                 const resultSection =
                     document.getElementById("resultSection");
 
                 if (resultSection) {
+
                     resultSection.style.display = "none";
+                    resultSection.classList.add("hidden");
                 }
             }
         }
@@ -136,49 +141,58 @@ async function analyzeReport() {
 
     if (!reportInput) {
 
-        console.error(
-            "Report input element not found."
-        );
+        console.error("Report input element not found.");
 
         return;
     }
 
-    const report =
-        reportInput.value.trim();
+    const report = reportInput.value.trim();
 
     if (!report) {
 
-        alert(
-            "Please enter a safety report first."
-        );
+        alert("Please enter a safety report first.");
 
         return;
     }
 
+
+    // Button loading state
     if (analyzeBtn) {
 
         analyzeBtn.disabled = true;
+
         analyzeBtn.innerText = "Analyzing...";
     }
 
+
+    // Loading indicator
+    const loading =
+        document.getElementById("loading");
+
+    if (loading) {
+
+        loading.classList.remove("hidden");
+
+        loading.style.display = "block";
+    }
+
+
     try {
 
-        const response =
-            await fetch(
-                `${API_BASE_URL}/analyze`,
-                {
-                    method: "POST",
+        const response = await fetch(
+            `${API_BASE_URL}/analyze`,
+            {
+                method: "POST",
 
-                    headers: {
-                        "Content-Type":
-                            "application/json"
-                    },
+                headers: {
+                    "Content-Type": "application/json"
+                },
 
-                    body: JSON.stringify({
-                        report: report
-                    })
-                }
-            );
+                body: JSON.stringify({
+                    report: report
+                })
+            }
+        );
 
 
         if (!response.ok) {
@@ -209,6 +223,7 @@ async function analyzeReport() {
             error
         );
 
+
         alert(
             "Unable to connect to the OIL SIF backend.\n\n" +
             "Please make sure the Render service is running."
@@ -217,9 +232,20 @@ async function analyzeReport() {
 
     } finally {
 
+        // Hide loading
+        if (loading) {
+
+            loading.classList.add("hidden");
+
+            loading.style.display = "none";
+        }
+
+
+        // Restore button
         if (analyzeBtn) {
 
             analyzeBtn.disabled = false;
+
             analyzeBtn.innerText =
                 "Analyze Report";
         }
@@ -233,16 +259,19 @@ async function analyzeReport() {
 
 function renderAnalysisResult(result) {
 
+    // --------------------------------------------------
+    // Result Section
+    // --------------------------------------------------
+
     const resultsSection =
-        document.getElementById(
-            "resultSection"
-        );
+        document.getElementById("resultSection");
 
 
     if (resultsSection) {
 
-        resultsSection.style.display =
-            "block";
+        resultsSection.classList.remove("hidden");
+
+        resultsSection.style.display = "block";
     }
 
 
@@ -251,15 +280,13 @@ function renderAnalysisResult(result) {
     // --------------------------------------------------
 
     const riskScore =
-        document.getElementById(
-            "riskScore"
-        );
+        document.getElementById("riskScore");
 
 
     if (riskScore) {
 
         riskScore.innerText =
-            `${result.risk_score ?? 0}/100`;
+            `${result.risk_score ?? 0}`;
     }
 
 
@@ -268,21 +295,17 @@ function renderAnalysisResult(result) {
     // --------------------------------------------------
 
     const riskLevel =
-        document.getElementById(
-            "riskLevel"
-        );
+        document.getElementById("riskLevel");
 
 
     if (riskLevel) {
 
         riskLevel.innerText =
-            result.risk_level ||
-            "UNKNOWN";
+            result.risk_level || "UNKNOWN";
+
 
         riskLevel.className =
-            `risk-badge ${getRiskClass(
-                result.risk_level
-            )}`;
+            `risk-badge ${getRiskClass(result.risk_level)}`;
     }
 
 
@@ -291,16 +314,13 @@ function renderAnalysisResult(result) {
     // --------------------------------------------------
 
     const category =
-        document.getElementById(
-            "category"
-        );
+        document.getElementById("category");
 
 
     if (category) {
 
         category.innerText =
-            result.category ||
-            "Not detected";
+            result.category || "Not detected";
     }
 
 
@@ -309,9 +329,7 @@ function renderAnalysisResult(result) {
     // --------------------------------------------------
 
     const analysis =
-        document.getElementById(
-            "analysisText"
-        );
+        document.getElementById("analysisText");
 
 
     if (analysis) {
@@ -327,23 +345,15 @@ function renderAnalysisResult(result) {
     // --------------------------------------------------
 
     const whyRisk =
-        document.getElementById(
-            "whyRiskList"
-        );
+        document.getElementById("whyRiskList");
 
 
     if (whyRisk) {
 
-        if (
-            Array.isArray(
-                result.why_risk
-            )
-        ) {
+        if (Array.isArray(result.why_risk)) {
 
             whyRisk.innerHTML =
-                formatList(
-                    result.why_risk
-                );
+                formatList(result.why_risk);
 
         } else {
 
@@ -359,9 +369,7 @@ function renderAnalysisResult(result) {
     // --------------------------------------------------
 
     const baseScore =
-        document.getElementById(
-            "baseScore"
-        );
+        document.getElementById("baseScore");
 
 
     if (baseScore) {
@@ -376,9 +384,7 @@ function renderAnalysisResult(result) {
     // --------------------------------------------------
 
     const detectedPoints =
-        document.getElementById(
-            "detectedPoints"
-        );
+        document.getElementById("detectedPoints");
 
 
     if (detectedPoints) {
@@ -393,9 +399,7 @@ function renderAnalysisResult(result) {
     // --------------------------------------------------
 
     const finalScore =
-        document.getElementById(
-            "finalScore"
-        );
+        document.getElementById("finalScore");
 
 
     if (finalScore) {
@@ -410,17 +414,13 @@ function renderAnalysisResult(result) {
     // --------------------------------------------------
 
     const breakdown =
-        document.getElementById(
-            "breakdownList"
-        );
+        document.getElementById("breakdownList");
 
 
     if (breakdown) {
 
         if (
-            Array.isArray(
-                result.score_breakdown
-            ) &&
+            Array.isArray(result.score_breakdown) &&
             result.score_breakdown.length > 0
         ) {
 
@@ -428,10 +428,7 @@ function renderAnalysisResult(result) {
                 result.score_breakdown
                     .map(item => {
 
-                        if (
-                            typeof item ===
-                            "string"
-                        ) {
+                        if (typeof item === "string") {
 
                             return `
                                 <div class="score-item">
@@ -467,6 +464,7 @@ function renderAnalysisResult(result) {
 
                             </div>
                         `;
+
                     })
                     .join("");
 
@@ -528,13 +526,11 @@ function renderAnalysisResult(result) {
 
 
     // --------------------------------------------------
-    // Detected Evidence
+    // Detected Evidence / Hazards
     // --------------------------------------------------
 
     const evidence =
-        document.getElementById(
-            "evidenceList"
-        );
+        document.getElementById("evidenceList");
 
 
     if (evidence) {
@@ -544,10 +540,9 @@ function renderAnalysisResult(result) {
             result.detected_hazards ||
             [];
 
+
         evidence.innerHTML =
-            formatList(
-                evidenceData
-            );
+            formatList(evidenceData);
     }
 
 
@@ -556,9 +551,7 @@ function renderAnalysisResult(result) {
     // --------------------------------------------------
 
     const precursors =
-        document.getElementById(
-            "precursorsList"
-        );
+        document.getElementById("precursorsList");
 
 
     if (precursors) {
@@ -575,9 +568,7 @@ function renderAnalysisResult(result) {
     // --------------------------------------------------
 
     const consequences =
-        document.getElementById(
-            "consequencesList"
-        );
+        document.getElementById("consequencesList");
 
 
     if (consequences) {
@@ -594,9 +585,7 @@ function renderAnalysisResult(result) {
     // --------------------------------------------------
 
     const actions =
-        document.getElementById(
-            "actionsList"
-        );
+        document.getElementById("actionsList");
 
 
     if (actions) {
@@ -613,9 +602,7 @@ function renderAnalysisResult(result) {
     // --------------------------------------------------
 
     const originalReport =
-        document.getElementById(
-            "originalReport"
-        );
+        document.getElementById("originalReport");
 
 
     if (originalReport) {
@@ -641,17 +628,12 @@ function renderAnalysisResult(result) {
 
 
 // ======================================================
-// DASHBOARD
+// LOAD DASHBOARD
 // ======================================================
 
 async function loadDashboard() {
 
     try {
-
-        console.log(
-            "Loading dashboard..."
-        );
-
 
         const response =
             await fetch(
@@ -692,19 +674,23 @@ async function loadDashboard() {
 
 
         const tableBody =
-            document.getElementById(
-                "reportsTable"
-            );
+            document.getElementById("reportsTable");
 
 
         if (tableBody) {
 
             tableBody.innerHTML = `
+
                 <tr>
+
                     <td colspan="5">
+
                         Unable to load safety reports.
+
                     </td>
+
                 </tr>
+
             `;
         }
     }
@@ -722,29 +708,23 @@ function renderDashboard(data) {
     // --------------------------------------------------
 
     const total =
-        document.getElementById(
-            "totalReports"
-        );
+        document.getElementById("totalReports");
+
 
     const critical =
-        document.getElementById(
-            "criticalReports"
-        );
+        document.getElementById("criticalReports");
+
 
     const high =
-        document.getElementById(
-            "highReports"
-        );
+        document.getElementById("highReports");
+
 
     const medium =
-        document.getElementById(
-            "mediumReports"
-        );
+        document.getElementById("mediumReports");
+
 
     const low =
-        document.getElementById(
-            "lowReports"
-        );
+        document.getElementById("lowReports");
 
 
     if (total) {
@@ -815,15 +795,13 @@ function renderDashboard(data) {
 function renderRiskDistribution(data) {
 
     const container =
-        document.getElementById(
-            "riskBars"
-        );
+        document.getElementById("riskBars");
 
 
     if (!container) {
 
-        console.error(
-            "riskBars container not found."
+        console.warn(
+            "riskBars element not found."
         );
 
         return;
@@ -831,38 +809,32 @@ function renderRiskDistribution(data) {
 
 
     const total =
-        Number(
-            data.total_reports
-        ) || 0;
+        Number(data.total_reports || 0);
 
 
-    const risks = [
+    const riskData = [
 
         {
             name: "Critical",
-            count:
-                Number(data.critical) || 0,
+            count: Number(data.critical || 0),
             className: "critical"
         },
 
         {
             name: "High",
-            count:
-                Number(data.high) || 0,
+            count: Number(data.high || 0),
             className: "high"
         },
 
         {
             name: "Medium",
-            count:
-                Number(data.medium) || 0,
+            count: Number(data.medium || 0),
             className: "medium"
         },
 
         {
             name: "Low",
-            count:
-                Number(data.low) || 0,
+            count: Number(data.low || 0),
             className: "low"
         }
 
@@ -870,47 +842,50 @@ function renderRiskDistribution(data) {
 
 
     container.innerHTML =
-        risks.map(risk => {
+        riskData
+            .map(item => {
 
-            const percentage =
-                total > 0
-                    ? Math.round(
-                        (risk.count / total) *
-                        100
-                    )
-                    : 0;
+                const percentage =
+                    total > 0
+                        ? Math.round(
+                            (item.count / total) * 100
+                        )
+                        : 0;
 
 
-            return `
-                <div class="risk-row">
+                return `
 
-                    <div class="risk-label">
+                    <div class="risk-bar-row">
 
-                        <span>
-                            ${risk.name}
-                        </span>
+                        <div class="risk-bar-header">
 
-                        <strong>
-                            ${risk.count}
-                            (${percentage}%)
-                        </strong>
+                            <span>
+                                ${item.name}
+                            </span>
+
+                            <strong>
+                                ${item.count}
+                                (${percentage}%)
+                            </strong>
+
+                        </div>
+
+
+                        <div class="risk-bar-track">
+
+                            <div
+                                class="risk-bar-fill ${item.className}"
+                                style="width:${percentage}%"
+                            ></div>
+
+                        </div>
 
                     </div>
 
+                `;
 
-                    <div class="risk-track">
-
-                        <div
-                            class="risk-fill ${risk.className}"
-                            style="width: ${percentage}%"
-                        ></div>
-
-                    </div>
-
-                </div>
-            `;
-
-        }).join("");
+            })
+            .join("");
 }
 
 
@@ -921,12 +896,11 @@ function renderRiskDistribution(data) {
 function renderPrecursorCounts(counts) {
 
     const container =
-        document.getElementById(
-            "precursorBars"
-        );
+        document.getElementById("precursorBars");
 
 
     if (!container) {
+
         return;
     }
 
@@ -944,6 +918,7 @@ function renderPrecursorCounts(counts) {
     }
 
 
+    // Sort highest first
     entries.sort(
         (a, b) => b[1] - a[1]
     );
@@ -964,8 +939,7 @@ function renderPrecursorCounts(counts) {
 
                 const percentage =
                     Math.round(
-                        (count / maxCount) *
-                        100
+                        (count / maxCount) * 100
                     );
 
 
@@ -998,6 +972,7 @@ function renderPrecursorCounts(counts) {
                     </div>
 
                 `;
+
             })
             .join("");
 }
@@ -1010,12 +985,11 @@ function renderPrecursorCounts(counts) {
 function renderRecentReports(reports) {
 
     const tableBody =
-        document.getElementById(
-            "reportsTable"
-        );
+        document.getElementById("reportsTable");
 
 
     if (!tableBody) {
+
         return;
     }
 
@@ -1027,7 +1001,9 @@ function renderRecentReports(reports) {
             <tr>
 
                 <td colspan="5">
+
                     No reports available.
+
                 </td>
 
             </tr>
@@ -1053,16 +1029,12 @@ function renderRecentReports(reports) {
                     <tr>
 
                         <td>
-                            #${escapeHTML(
-                                report.id
-                            )}
+                            #${escapeHTML(report.id)}
                         </td>
 
 
                         <td>
-                            ${escapeHTML(
-                                report.report
-                            )}
+                            ${escapeHTML(report.report)}
                         </td>
 
 
@@ -1097,6 +1069,7 @@ function renderRecentReports(reports) {
                     </tr>
 
                 `;
+
             })
             .join("");
 }
@@ -1107,10 +1080,6 @@ function renderRecentReports(reports) {
 // ======================================================
 
 function refreshDashboard() {
-
-    console.log(
-        "Refreshing dashboard..."
-    );
 
     loadDashboard();
 }
@@ -1130,7 +1099,7 @@ if (analyzeBtn) {
 
 
 // ======================================================
-// ENTER KEY SUPPORT
+// CTRL + ENTER SUPPORT
 // ======================================================
 
 if (reportInput) {
@@ -1141,9 +1110,10 @@ if (reportInput) {
 
             if (
                 event.key === "Enter" &&
-                (event.ctrlKey ||
-                    event.metaKey)
+                (event.ctrlKey || event.metaKey)
             ) {
+
+                event.preventDefault();
 
                 analyzeReport();
             }
