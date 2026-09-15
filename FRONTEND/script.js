@@ -1,10 +1,14 @@
+// ======================================================
+// API
+// ======================================================
+
 const API_BASE_URL =
     "https://oil-sif-engine.onrender.com";
 
 
-// =====================================================
-// DEMO REPORTS
-// =====================================================
+// ======================================================
+// DEMO SCENARIOS
+// ======================================================
 
 const demoReports = {
 
@@ -17,10 +21,10 @@ const demoReports = {
     height:
         "Worker was working at height without a safety harness and without guardrail.",
 
-    hydrocarbon:
+    fire:
         "A hydrocarbon leak was observed near a hot work area.",
 
-    ppe:
+    chemical:
         "Worker was handling hazardous material without gloves and without helmet.",
 
     vessel:
@@ -31,39 +35,96 @@ const demoReports = {
 
     ventilation:
         "Poor ventilation was observed inside a confined space before entry."
-
 };
 
 
-// =====================================================
-// GET ELEMENTS
-// =====================================================
+// ======================================================
+// DOM ELEMENTS
+// ======================================================
 
 const reportInput =
     document.getElementById("reportInput");
 
-const demoSelect =
-    document.getElementById("demoSelect");
-
 const analyzeBtn =
     document.getElementById("analyzeBtn");
 
-const clearBtn =
-    document.getElementById("clearBtn");
-
-const resultSection =
-    document.getElementById("resultSection");
-
-const loadingMessage =
-    document.getElementById("loadingMessage");
-
-const errorMessage =
-    document.getElementById("errorMessage");
+const demoSelect =
+    document.getElementById("sampleReport");
 
 
-// =====================================================
-// DEMO SELECT
-// =====================================================
+// ======================================================
+// UTILITY
+// ======================================================
+
+function escapeHTML(value) {
+
+    if (
+        value === null ||
+        value === undefined
+    ) {
+        return "";
+    }
+
+    return String(value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
+
+function getRiskClass(level) {
+
+    switch (
+        String(level || "").toUpperCase()
+    ) {
+
+        case "CRITICAL":
+            return "critical";
+
+        case "HIGH":
+            return "high";
+
+        case "MEDIUM":
+            return "medium";
+
+        case "LOW":
+            return "low";
+
+        default:
+            return "";
+    }
+}
+
+
+function formatList(items) {
+
+    if (
+        !Array.isArray(items) ||
+        items.length === 0
+    ) {
+
+        return "<p>No information detected.</p>";
+    }
+
+
+    return `
+        <ul>
+            ${items
+                .map(
+                    item =>
+                        `<li>${escapeHTML(item)}</li>`
+                )
+                .join("")}
+        </ul>
+    `;
+}
+
+
+// ======================================================
+// DEMO DROPDOWN
+// ======================================================
 
 if (demoSelect) {
 
@@ -75,98 +136,50 @@ if (demoSelect) {
                 this.value;
 
 
-            if (!selected) {
-                return;
+            if (
+                selected &&
+                demoReports[selected]
+            ) {
+
+                if (reportInput) {
+
+                    reportInput.value =
+                        demoReports[selected];
+                }
+
+
+                const resultSection =
+                    document.getElementById(
+                        "resultSection"
+                    );
+
+
+                if (resultSection) {
+
+                    resultSection.style.display =
+                        "none";
+                }
             }
-
-
-            if (!demoReports[selected]) {
-                return;
-            }
-
-
-            reportInput.value =
-                demoReports[selected];
-
-
-            resultSection.classList.add(
-                "hidden"
-            );
-
-
-            hideError();
         }
     );
 }
 
 
-// =====================================================
-// CLEAR
-// =====================================================
-
-if (clearBtn) {
-
-    clearBtn.addEventListener(
-        "click",
-        function () {
-
-            reportInput.value = "";
-
-            if (demoSelect) {
-                demoSelect.value = "";
-            }
-
-            resultSection.classList.add(
-                "hidden"
-            );
-
-            hideError();
-
-        }
-    );
-}
-
-
-// =====================================================
-// ERROR
-// =====================================================
-
-function showError(message) {
-
-    if (!errorMessage) {
-        return;
-    }
-
-    errorMessage.textContent =
-        message;
-
-    errorMessage.classList.remove(
-        "hidden"
-    );
-}
-
-
-// =====================================================
-// HIDE ERROR
-// =====================================================
-
-function hideError() {
-
-    if (!errorMessage) {
-        return;
-    }
-
-    errorMessage.classList.add(
-        "hidden"
-    );
-}
-
-
-// =====================================================
+// ======================================================
 // ANALYZE REPORT
-// =====================================================
+// ======================================================
 
 async function analyzeReport() {
+
+    if (!reportInput) {
+
+        console.error(
+            "Report input element not found."
+        );
+
+        return;
+    }
+
 
     const report =
         reportInput.value.trim();
@@ -174,31 +187,21 @@ async function analyzeReport() {
 
     if (!report) {
 
-        showError(
-            "Please enter a safety report."
+        alert(
+            "Please enter a safety report first."
         );
 
         return;
     }
 
 
-    hideError();
+    if (analyzeBtn) {
 
+        analyzeBtn.disabled = true;
 
-    loadingMessage.classList.remove(
-        "hidden"
-    );
-
-
-    resultSection.classList.add(
-        "hidden"
-    );
-
-
-    analyzeBtn.disabled = true;
-
-    analyzeBtn.textContent =
-        "Analyzing...";
+        analyzeBtn.innerText =
+            "Analyzing...";
+    }
 
 
     try {
@@ -211,9 +214,6 @@ async function analyzeReport() {
 
                     headers: {
                         "Content-Type":
-                            "application/json",
-
-                        "Accept":
                             "application/json"
                     },
 
@@ -227,80 +227,115 @@ async function analyzeReport() {
         if (!response.ok) {
 
             throw new Error(
-                `Server returned ${response.status}`
+                `API Error: ${response.status}`
             );
         }
 
 
-        const data =
+        const result =
             await response.json();
 
 
-        renderResult(data);
-
-
-        resultSection.classList.remove(
-            "hidden"
+        console.log(
+            "Analysis Result:",
+            result
         );
 
 
-        // Refresh dashboard
-
-        await loadDashboard();
-
-
-        resultSection.scrollIntoView({
-            behavior: "smooth",
-            block: "start"
-        });
-
-    }
+        renderAnalysisResult(
+            result
+        );
 
 
-    catch (error) {
+    } catch (error) {
 
         console.error(
-            "Analysis Error:",
+            "Analysis error:",
             error
         );
 
 
-        showError(
-            "Unable to analyze report. Please check the backend connection."
+        alert(
+            "Unable to connect to the OIL SIF backend.\n\n" +
+            "Please make sure the Render service is running."
         );
 
-    }
 
+    } finally {
 
-    finally {
+        if (analyzeBtn) {
 
-        loadingMessage.classList.add(
-            "hidden"
-        );
+            analyzeBtn.disabled = false;
 
-        analyzeBtn.disabled = false;
-
-        analyzeBtn.textContent =
-            "🔍 Analyze Safety Report";
+            analyzeBtn.innerText =
+                "Analyze Report";
+        }
     }
 }
 
 
-// =====================================================
-// RENDER RESULT
-// =====================================================
+// ======================================================
+// RENDER ANALYSIS RESULT
+// ======================================================
 
-function renderResult(data) {
+function renderAnalysisResult(result) {
+
+    const resultsSection =
+        document.getElementById(
+            "resultSection"
+        );
+
+
+    if (resultsSection) {
+
+        resultsSection.style.display =
+            "block";
+    }
+
+
+    // ----------------------------------------------
+    // RISK SCORE
+    // ----------------------------------------------
 
     const riskScore =
         document.getElementById(
             "riskScore"
         );
 
+
+    if (riskScore) {
+
+        riskScore.innerText =
+            `${result.risk_score ?? 0}/100`;
+    }
+
+
+    // ----------------------------------------------
+    // RISK LEVEL
+    // ----------------------------------------------
+
     const riskLevel =
         document.getElementById(
             "riskLevel"
         );
+
+
+    if (riskLevel) {
+
+        riskLevel.innerText =
+            result.risk_level ||
+            "UNKNOWN";
+
+        riskLevel.className =
+            `risk-badge ${getRiskClass(
+                result.risk_level
+            )}`;
+    }
+
+
+    // ----------------------------------------------
+    // CATEGORY
+    // ----------------------------------------------
 
     const category =
         document.getElementById(
@@ -308,362 +343,357 @@ function renderResult(data) {
         );
 
 
-    if (riskScore) {
-
-        riskScore.textContent =
-            data.risk_score ?? "-";
-    }
-
-
-    if (riskLevel) {
-
-        riskLevel.textContent =
-            data.risk_level ?? "-";
-    }
-
-
     if (category) {
 
-        category.textContent =
-            data.category ?? "-";
+        category.innerText =
+            result.category ||
+            "Not detected";
     }
 
 
-    // -----------------------------------------------
-    // Analysis
-    // -----------------------------------------------
+    // ----------------------------------------------
+    // ANALYSIS
+    // ----------------------------------------------
 
-    const analysisText =
+    const analysis =
         document.getElementById(
             "analysisText"
         );
 
 
-    if (analysisText) {
+    if (analysis) {
 
-        analysisText.textContent =
-            data.analysis ?? "-";
+        analysis.innerText =
+            result.analysis ||
+            "No analysis available.";
     }
 
 
-    // -----------------------------------------------
-    // Score
-    // -----------------------------------------------
+    // ----------------------------------------------
+    // WHY THIS RISK
+    // ----------------------------------------------
 
-    setText(
-        "baseScore",
-        data.base_score ?? 0
-    );
-
-
-    setText(
-        "detectedPoints",
-        data.detected_points ?? 0
-    );
-
-
-    setText(
-        "finalScore",
-        data.risk_score ?? 0
-    );
-
-
-    // -----------------------------------------------
-    // Original Report
-    // -----------------------------------------------
-
-    setText(
-        "originalReport",
-        data.original_report ??
-        reportInput.value
-    );
-
-
-    // -----------------------------------------------
-    // Risk Colour
-    // -----------------------------------------------
-
-    const level =
-        String(
-            data.risk_level || ""
-        ).toUpperCase();
-
-
-    if (riskScore) {
-        riskScore.style.color = "";
-    }
-
-
-    if (riskLevel) {
-        riskLevel.style.color = "";
-    }
-
-
-    if (level === "CRITICAL") {
-
-        if (riskScore) {
-            riskScore.style.color =
-                "#dc2626";
-        }
-
-        if (riskLevel) {
-            riskLevel.style.color =
-                "#dc2626";
-        }
-
-    }
-
-
-    else if (level === "HIGH") {
-
-        if (riskScore) {
-            riskScore.style.color =
-                "#ea580c";
-        }
-
-        if (riskLevel) {
-            riskLevel.style.color =
-                "#ea580c";
-        }
-
-    }
-
-
-    else if (level === "MEDIUM") {
-
-        if (riskScore) {
-            riskScore.style.color =
-                "#ca8a04";
-        }
-
-        if (riskLevel) {
-            riskLevel.style.color =
-                "#ca8a04";
-        }
-
-    }
-
-
-    else if (level === "LOW") {
-
-        if (riskScore) {
-            riskScore.style.color =
-                "#16a34a";
-        }
-
-        if (riskLevel) {
-            riskLevel.style.color =
-                "#16a34a";
-        }
-    }
-
-
-    // -----------------------------------------------
-    // Lists
-    // -----------------------------------------------
-
-    renderList(
-        "whyRiskList",
-        data.why_risk || []
-    );
-
-
-    renderBreakdown(
-        data.score_breakdown || []
-    );
-
-
-    renderList(
-        "evidenceList",
-        data.evidence || []
-    );
-
-
-    renderList(
-        "precursorsList",
-        data.precursors || []
-    );
-
-
-    renderList(
-        "consequencesList",
-        data.consequences || []
-    );
-
-
-    renderList(
-        "actionsList",
-        data.actions || []
-    );
-}
-
-
-// =====================================================
-// SET TEXT
-// =====================================================
-
-function setText(id, value) {
-
-    const element =
-        document.getElementById(id);
-
-
-    if (element) {
-
-        element.textContent =
-            value;
-    }
-}
-
-
-// =====================================================
-// GENERIC LIST
-// =====================================================
-
-function renderList(
-    elementId,
-    items
-) {
-
-    const element =
+    const whyRisk =
         document.getElementById(
-            elementId
+            "whyRiskList"
         );
 
 
-    if (!element) {
-        return;
-    }
-
-
-    element.innerHTML = "";
-
-
-    if (
-        !items ||
-        items.length === 0
-    ) {
-
-        const li =
-            document.createElement(
-                "li"
-            );
-
-
-        li.textContent =
-            "No information detected.";
-
-
-        element.appendChild(li);
-
-        return;
-    }
-
-
-    items.forEach(item => {
-
-        const li =
-            document.createElement(
-                "li"
-            );
-
+    if (whyRisk) {
 
         if (
-            typeof item === "object"
+            Array.isArray(
+                result.why_risk
+            )
         ) {
 
-            li.textContent =
-                JSON.stringify(item);
+            whyRisk.innerHTML =
+                formatList(
+                    result.why_risk
+                );
 
+        } else {
+
+            whyRisk.innerText =
+                result.why_risk ||
+                "Risk level is calculated based on detected safety factors.";
         }
-
-        else {
-
-            li.textContent =
-                item;
-        }
+    }
 
 
-        element.appendChild(li);
-    });
-}
+    // ----------------------------------------------
+    // BASE SCORE
+    // ----------------------------------------------
+
+    const baseScore =
+        document.getElementById(
+            "baseScore"
+        );
 
 
-// =====================================================
-// SCORE BREAKDOWN
-// =====================================================
+    if (baseScore) {
 
-function renderBreakdown(items) {
+        baseScore.innerText =
+            result.base_score ?? 0;
+    }
 
-    const element =
+
+    // ----------------------------------------------
+    // DETECTED POINTS
+    // ----------------------------------------------
+
+    const detectedPoints =
+        document.getElementById(
+            "detectedPoints"
+        );
+
+
+    if (detectedPoints) {
+
+        detectedPoints.innerText =
+            result.detected_points ?? 0;
+    }
+
+
+    // ----------------------------------------------
+    // FINAL SCORE
+    // ----------------------------------------------
+
+    const finalScore =
+        document.getElementById(
+            "finalScore"
+        );
+
+
+    if (finalScore) {
+
+        finalScore.innerText =
+            result.risk_score ?? 0;
+    }
+
+
+    // ----------------------------------------------
+    // SCORE BREAKDOWN
+    // ----------------------------------------------
+
+    const breakdown =
         document.getElementById(
             "breakdownList"
         );
 
 
-    if (!element) {
-        return;
-    }
-
-
-    element.innerHTML = "";
-
-
-    if (
-        !items ||
-        items.length === 0
-    ) {
-
-        const li =
-            document.createElement(
-                "li"
-            );
-
-
-        li.textContent =
-            "No score factors detected.";
-
-
-        element.appendChild(li);
-
-        return;
-    }
-
-
-    items.forEach(item => {
-
-        const li =
-            document.createElement(
-                "li"
-            );
-
+    if (breakdown) {
 
         if (
-            typeof item === "object" &&
-            item.factor !== undefined &&
-            item.points !== undefined
+            Array.isArray(
+                result.score_breakdown
+            ) &&
+            result.score_breakdown.length > 0
         ) {
 
-            li.textContent =
-                `${item.factor}: +${item.points}`;
+            breakdown.innerHTML =
+                result.score_breakdown
+                    .map(item => {
 
+                        if (
+                            typeof item ===
+                            "string"
+                        ) {
+
+                            return `
+                                <div class="score-item">
+                                    ${escapeHTML(item)}
+                                </div>
+                            `;
+                        }
+
+
+                        const factor =
+                            item.factor ||
+                            item.name ||
+                            item.label ||
+                            "Risk Factor";
+
+
+                        const points =
+                            item.points ??
+                            item.score ??
+                            0;
+
+
+                        return `
+                            <div class="score-item">
+
+                                <span>
+                                    ${escapeHTML(
+                                        factor
+                                    )}
+                                </span>
+
+                                <strong>
+                                    +${escapeHTML(
+                                        points
+                                    )}
+                                </strong>
+
+                            </div>
+                        `;
+                    })
+                    .join("");
+
+        } else {
+
+            const base =
+                result.base_score ?? 0;
+
+            const detected =
+                result.detected_points ?? 0;
+
+            const final =
+                result.risk_score ?? 0;
+
+
+            breakdown.innerHTML = `
+
+                <div class="score-item">
+
+                    <span>
+                        Base Score
+                    </span>
+
+                    <strong>
+                        +${base}
+                    </strong>
+
+                </div>
+
+
+                <div class="score-item">
+
+                    <span>
+                        Detected Risk Factors
+                    </span>
+
+                    <strong>
+                        +${detected}
+                    </strong>
+
+                </div>
+
+
+                <div class="score-item total">
+
+                    <span>
+                        Final Risk Score
+                    </span>
+
+                    <strong>
+                        ${final}
+                    </strong>
+
+                </div>
+
+            `;
         }
-
-        else {
-
-            li.textContent =
-                String(item);
-        }
+    }
 
 
-        element.appendChild(li);
-    });
+    // ----------------------------------------------
+    // EVIDENCE
+    // ----------------------------------------------
+
+    const evidence =
+        document.getElementById(
+            "evidenceList"
+        );
+
+
+    if (evidence) {
+
+        const evidenceData =
+            result.evidence ||
+            result.detected_hazards ||
+            [];
+
+        evidence.innerHTML =
+            formatList(
+                evidenceData
+            );
+    }
+
+
+    // ----------------------------------------------
+    // PRECURSORS
+    // ----------------------------------------------
+
+    const precursors =
+        document.getElementById(
+            "precursorsList"
+        );
+
+
+    if (precursors) {
+
+        precursors.innerHTML =
+            formatList(
+                result.precursors || []
+            );
+    }
+
+
+    // ----------------------------------------------
+    // CONSEQUENCES
+    // ----------------------------------------------
+
+    const consequences =
+        document.getElementById(
+            "consequencesList"
+        );
+
+
+    if (consequences) {
+
+        consequences.innerHTML =
+            formatList(
+                result.consequences || []
+            );
+    }
+
+
+    // ----------------------------------------------
+    // ACTIONS
+    // ----------------------------------------------
+
+    const actions =
+        document.getElementById(
+            "actionsList"
+        );
+
+
+    if (actions) {
+
+        actions.innerHTML =
+            formatList(
+                result.actions || []
+            );
+    }
+
+
+    // ----------------------------------------------
+    // ORIGINAL REPORT
+    // ----------------------------------------------
+
+    const originalReport =
+        document.getElementById(
+            "originalReport"
+        );
+
+
+    if (originalReport) {
+
+        originalReport.innerText =
+            result.original_report ||
+            reportInput.value;
+    }
+
+
+    // ----------------------------------------------
+    // SCROLL
+    // ----------------------------------------------
+
+    if (resultsSection) {
+
+        resultsSection.scrollIntoView({
+            behavior: "smooth",
+            block: "start"
+        });
+    }
 }
 
 
-// =====================================================
-// LOAD DASHBOARD
-// =====================================================
+// ======================================================
+// DASHBOARD LOAD
+// ======================================================
 
 async function loadDashboard() {
 
@@ -681,7 +711,7 @@ async function loadDashboard() {
         if (!response.ok) {
 
             throw new Error(
-                `Dashboard error: ${response.status}`
+                `Dashboard API Error: ${response.status}`
             );
         }
 
@@ -690,66 +720,141 @@ async function loadDashboard() {
             await response.json();
 
 
-        renderDashboard(data);
+        console.log(
+            "Dashboard Data:",
+            data
+        );
 
-    }
+
+        renderDashboard(
+            data
+        );
 
 
-    catch (error) {
+    } catch (error) {
 
         console.error(
-            "Dashboard loading failed:",
+            "Dashboard loading error:",
             error
         );
+
+
+        const tableBody =
+            document.getElementById(
+                "reportsTable"
+            );
+
+
+        if (tableBody) {
+
+            tableBody.innerHTML = `
+
+                <tr>
+
+                    <td colspan="5">
+                        Unable to load safety reports.
+                    </td>
+
+                </tr>
+
+            `;
+        }
     }
 }
 
 
-// =====================================================
+// ======================================================
 // RENDER DASHBOARD
-// =====================================================
+// ======================================================
 
 function renderDashboard(data) {
 
-    setText(
-        "totalReports",
-        data.total_reports ?? 0
-    );
+    // ----------------------------------------------
+    // STATISTICS
+    // ----------------------------------------------
+
+    const total =
+        document.getElementById(
+            "totalReports"
+        );
+
+    const critical =
+        document.getElementById(
+            "criticalReports"
+        );
+
+    const high =
+        document.getElementById(
+            "highReports"
+        );
+
+    const medium =
+        document.getElementById(
+            "mediumReports"
+        );
+
+    const low =
+        document.getElementById(
+            "lowReports"
+        );
 
 
-    setText(
-        "criticalCount",
-        data.critical ?? 0
-    );
+    if (total) {
+
+        total.innerText =
+            data.total_reports ?? 0;
+    }
 
 
-    setText(
-        "highCount",
-        data.high ?? 0
-    );
+    if (critical) {
+
+        critical.innerText =
+            data.critical ?? 0;
+    }
 
 
-    setText(
-        "mediumCount",
-        data.medium ?? 0
-    );
+    if (high) {
+
+        high.innerText =
+            data.high ?? 0;
+    }
 
 
-    setText(
-        "lowCount",
-        data.low ?? 0
-    );
+    if (medium) {
 
+        medium.innerText =
+            data.medium ?? 0;
+    }
+
+
+    if (low) {
+
+        low.innerText =
+            data.low ?? 0;
+    }
+
+
+    // ----------------------------------------------
+    // RISK DISTRIBUTION
+    // ----------------------------------------------
 
     renderRiskDistribution(
         data
     );
 
 
+    // ----------------------------------------------
+    // PRECURSOR DISTRIBUTION
+    // ----------------------------------------------
+
     renderPrecursorCounts(
         data.precursor_counts || {}
     );
 
+
+    // ----------------------------------------------
+    // RECENT REPORTS
+    // ----------------------------------------------
 
     renderRecentReports(
         data.reports || []
@@ -757,9 +862,9 @@ function renderDashboard(data) {
 }
 
 
-// =====================================================
+// ======================================================
 // RISK DISTRIBUTION
-// =====================================================
+// ======================================================
 
 function renderRiskDistribution(data) {
 
@@ -770,128 +875,130 @@ function renderRiskDistribution(data) {
 
 
     if (!container) {
+
+        console.error(
+            "riskBars container not found."
+        );
+
         return;
     }
 
 
-    container.innerHTML = "";
-
-
     const total =
-        data.total_reports || 0;
+        Number(
+            data.total_reports
+        ) || 0;
 
 
     const risks = [
 
         {
             name: "Critical",
-            value: data.critical || 0
+            count:
+                Number(data.critical) || 0,
+            className: "critical"
         },
 
         {
             name: "High",
-            value: data.high || 0
+            count:
+                Number(data.high) || 0,
+            className: "high"
         },
 
         {
             name: "Medium",
-            value: data.medium || 0
+            count:
+                Number(data.medium) || 0,
+            className: "medium"
         },
 
         {
             name: "Low",
-            value: data.low || 0
+            count:
+                Number(data.low) || 0,
+            className: "low"
         }
 
     ];
 
 
-    risks.forEach(risk => {
+    container.innerHTML =
+        risks.map(risk => {
 
-        const percentage =
-            total > 0
-                ? (
-                    risk.value /
-                    total *
-                    100
-                ).toFixed(1)
-                : 0;
-
-
-        const wrapper =
-            document.createElement(
-                "div"
-            );
+            const percentage =
+                total > 0
+                    ? Math.round(
+                        (risk.count / total) * 100
+                    )
+                    : 0;
 
 
-        wrapper.className =
-            "risk-bar";
+            return `
+
+                <div class="risk-row">
+
+                    <div class="risk-label">
+
+                        <span>
+                            ${risk.name}
+                        </span>
+
+                        <strong>
+                            ${risk.count}
+                            (${percentage}%)
+                        </strong>
+
+                    </div>
 
 
-        wrapper.innerHTML = `
+                    <div class="risk-track">
 
-            <div class="risk-bar-label">
+                        <div
+                            class="risk-fill ${risk.className}"
+                            style="width: ${percentage}%"
+                        ></div>
 
-                <span>
-                    ${risk.name}
-                </span>
+                    </div>
 
-                <span>
-                    ${risk.value}
-                    (${percentage}%)
-                </span>
+                </div>
 
-            </div>
+            `;
 
-            <div class="bar-container">
-
-                <div
-                    class="bar"
-                    style="width:${percentage}%"
-                ></div>
-
-            </div>
-
-        `;
-
-
-        container.appendChild(
-            wrapper
-        );
-    });
+        }).join("");
 }
 
 
-// =====================================================
+// ======================================================
 // PRECURSOR COUNTS
-// =====================================================
+// ======================================================
 
-function renderPrecursorCounts(data) {
+function renderPrecursorCounts(counts) {
 
     const container =
         document.getElementById(
-            "precursorCounts"
+            "precursorBars"
         );
 
 
     if (!container) {
+
         return;
     }
 
 
-    container.innerHTML = "";
-
-
     const entries =
-        Object.entries(data);
+        Object.entries(
+            counts
+        );
 
 
     if (
         entries.length === 0
     ) {
 
-        container.textContent =
-            "No precursor data available.";
+        container.innerHTML =
+            "<p>No precursor data available.</p>";
 
         return;
     }
@@ -903,255 +1010,172 @@ function renderPrecursorCounts(data) {
     );
 
 
-    entries.forEach(
-        ([precursor, count]) => {
-
-            const div =
-                document.createElement(
-                    "div"
-                );
-
-
-            div.style.padding =
-                "10px 0";
+    const maxCount =
+        Math.max(
+            ...entries.map(
+                item => item[1]
+            ),
+            1
+        );
 
 
-            div.style.borderBottom =
-                "1px solid #e2e8f0";
+    container.innerHTML =
+        entries
+            .map(
+                ([name, count]) => {
+
+                    const percentage =
+                        Math.round(
+                            (count / maxCount) * 100
+                        );
 
 
-            div.innerHTML = `
+                    return `
 
-                <strong>
-                    ${escapeHtml(precursor)}
-                </strong>
+                        <div class="precursor-row">
 
-                <span style="float:right;">
-                    ${count}
-                </span>
+                            <div class="precursor-label">
 
-            `;
+                                <span>
+                                    ${escapeHTML(
+                                        name
+                                    )}
+                                </span>
+
+                                <strong>
+                                    ${escapeHTML(
+                                        count
+                                    )}
+                                </strong>
+
+                            </div>
 
 
-            container.appendChild(
-                div
-            );
-        }
-    );
+                            <div class="precursor-track">
+
+                                <div
+                                    class="precursor-fill"
+                                    style="width:${percentage}%"
+                                ></div>
+
+                            </div>
+
+                        </div>
+
+                    `;
+                }
+            )
+            .join("");
 }
 
 
-// =====================================================
-// RECENT SAFETY REPORTS
-// =====================================================
+// ======================================================
+// RECENT REPORTS
+// ======================================================
 
 function renderRecentReports(reports) {
 
-    const tbody =
+    const tableBody =
         document.getElementById(
-            "recentReports"
+            "reportsTable"
         );
 
 
-    if (!tbody) {
+    if (!tableBody) {
+
         return;
     }
-
-
-    tbody.innerHTML = "";
 
 
     if (
-        !reports ||
-        reports.length === 0
+        !reports.length
     ) {
 
-        const row =
-            document.createElement(
-                "tr"
-            );
+        tableBody.innerHTML = `
 
+            <tr>
 
-        row.innerHTML = `
+                <td colspan="5">
+                    No reports available.
+                </td>
 
-            <td colspan="5">
-                No reports available.
-            </td>
+            </tr>
 
         `;
-
-
-        tbody.appendChild(row);
 
         return;
     }
 
 
-    // Latest reports first
+    tableBody.innerHTML =
+        reports
+            .map(
+                report => {
 
-    const sortedReports =
-        [...reports].sort(
-            (a, b) =>
-                Number(b.id || 0) -
-                Number(a.id || 0)
-        );
-
-
-    sortedReports.forEach(report => {
-
-        const row =
-            document.createElement(
-                "tr"
-            );
+                    const riskClass =
+                        getRiskClass(
+                            report.risk_level
+                        );
 
 
-        const risk =
-            String(
-                report.risk_level || ""
-            ).toLowerCase();
+                    return `
+
+                        <tr>
+
+                            <td>
+                                #${escapeHTML(
+                                    report.id
+                                )}
+                            </td>
 
 
-        let badgeClass =
-            "badge-low";
+                            <td>
+                                ${escapeHTML(
+                                    report.report
+                                )}
+                            </td>
 
 
-        if (
-            risk === "critical"
-        ) {
-
-            badgeClass =
-                "badge-critical";
-
-        }
-
-        else if (
-            risk === "high"
-        ) {
-
-            badgeClass =
-                "badge-high";
-
-        }
-
-        else if (
-            risk === "medium"
-        ) {
-
-            badgeClass =
-                "badge-medium";
-        }
+                            <td>
+                                ${escapeHTML(
+                                    report.category ||
+                                    "Not detected"
+                                )}
+                            </td>
 
 
-        const precursors =
-            Array.isArray(
-                report.precursors
+                            <td>
+
+                                <span
+                                    class="risk-badge ${riskClass}"
+                                >
+                                    ${escapeHTML(
+                                        report.risk_level ||
+                                        "UNKNOWN"
+                                    )}
+                                </span>
+
+                            </td>
+
+
+                            <td>
+                                ${escapeHTML(
+                                    report.risk_score ?? 0
+                                )}
+                            </td>
+
+                        </tr>
+
+                    `;
+                }
             )
-                ? report.precursors.join(
-                    ", "
-                )
-                : "-";
-
-
-        row.innerHTML = `
-
-            <td>
-                ${report.id ?? "-"}
-            </td>
-
-            <td>
-                ${escapeHtml(
-                    report.report ?? "-"
-                )}
-            </td>
-
-            <td>
-
-                <span
-                    class="badge ${badgeClass}"
-                >
-
-                    ${escapeHtml(
-                        report.risk_level ?? "-"
-                    )}
-
-                    -
-
-                    ${report.risk_score ?? 0}
-
-                </span>
-
-            </td>
-
-            <td>
-                ${escapeHtml(
-                    report.category ?? "-"
-                )}
-            </td>
-
-            <td>
-                ${escapeHtml(
-                    precursors
-                )}
-            </td>
-
-        `;
-
-
-        tbody.appendChild(
-            row
-        );
-    });
+            .join("");
 }
 
 
-// =====================================================
-// ESCAPE HTML
-// =====================================================
-
-function escapeHtml(value) {
-
-    return String(value)
-
-        .replace(
-            /&/g,
-            "&amp;"
-        )
-
-        .replace(
-            /</g,
-            "&lt;"
-        )
-
-        .replace(
-            />/g,
-            "&gt;"
-        )
-
-        .replace(
-            /"/g,
-            "&quot;"
-        )
-
-        .replace(
-            /'/g,
-            "&#039;"
-        );
-}
-
-
-// =====================================================
-// REFRESH DASHBOARD
-// =====================================================
-
-function refreshDashboard() {
-
-    loadDashboard();
-}
-
-
-// =====================================================
-// BUTTON EVENTS
-// =====================================================
+// ======================================================
+// ANALYZE BUTTON
+// ======================================================
 
 if (analyzeBtn) {
 
@@ -1162,24 +1186,9 @@ if (analyzeBtn) {
 }
 
 
-const refreshButton =
-    document.getElementById(
-        "refreshDashboard"
-    );
-
-
-if (refreshButton) {
-
-    refreshButton.addEventListener(
-        "click",
-        refreshDashboard
-    );
-}
-
-
-// =====================================================
+// ======================================================
 // CTRL + ENTER
-// =====================================================
+// ======================================================
 
 if (reportInput) {
 
@@ -1188,26 +1197,21 @@ if (reportInput) {
         function (event) {
 
             if (
-                (
-                    event.ctrlKey ||
-                    event.metaKey
-                ) &&
-                event.key === "Enter"
+                event.key === "Enter" &&
+                (event.ctrlKey ||
+                 event.metaKey)
             ) {
-
-                event.preventDefault();
 
                 analyzeReport();
             }
-
         }
     );
 }
 
 
-// =====================================================
+// ======================================================
 // INITIAL DASHBOARD LOAD
-// =====================================================
+// ======================================================
 
 document.addEventListener(
     "DOMContentLoaded",

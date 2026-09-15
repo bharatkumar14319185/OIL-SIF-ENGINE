@@ -5,9 +5,9 @@ from pydantic import BaseModel
 from analyzer import analyze_report
 
 
-# =====================================================
+# ======================================================
 # APP
-# =====================================================
+# ======================================================
 
 app = FastAPI(
     title="OIL SIF Safety Intelligence Engine",
@@ -16,9 +16,9 @@ app = FastAPI(
 )
 
 
-# =====================================================
+# ======================================================
 # CORS
-# =====================================================
+# ======================================================
 
 app.add_middleware(
     CORSMiddleware,
@@ -29,128 +29,101 @@ app.add_middleware(
 )
 
 
-# =====================================================
+# ======================================================
 # REQUEST MODEL
-# =====================================================
+# ======================================================
 
 class ReportRequest(BaseModel):
     report: str
 
 
-# =====================================================
+# ======================================================
 # DEMO REPORTS
-# =====================================================
+# ======================================================
 
 demo_reports = [
 
     {
         "id": 1,
         "report":
-            "Worker entered a confined space without gas testing and without permit."
+        "Worker entered a confined space without gas testing and without permit."
     },
 
     {
         "id": 2,
         "report":
-            "Worker was working on an electrical panel without LOTO and without electrical isolation."
+        "Worker was working on an electrical panel without LOTO and without electrical isolation."
     },
 
     {
         "id": 3,
         "report":
-            "Worker was working at height without a safety harness and without guardrail."
+        "Worker was working at height without a safety harness and without guardrail."
     },
 
     {
         "id": 4,
         "report":
-            "A hydrocarbon leak was observed near a hot work area."
+        "A hydrocarbon leak was observed near a hot work area."
     },
 
     {
         "id": 5,
         "report":
-            "Worker was handling hazardous material without gloves and without helmet."
+        "Worker was handling hazardous material without gloves and without helmet."
     },
 
     {
         "id": 6,
         "report":
-            "Worker entered a vessel after gas testing was not carried out and the entry permit was not obtained."
+        "Worker entered a vessel after gas testing was not carried out and the entry permit was not obtained."
     },
 
     {
         "id": 7,
         "report":
-            "Maintenance activity was performed near an energized electrical panel. LOTO was not applied."
+        "Maintenance activity was performed near an energized electrical panel. LOTO was not applied."
     },
 
     {
         "id": 8,
         "report":
-            "Poor ventilation was observed inside a confined space before entry."
+        "Poor ventilation was observed inside a confined space before entry."
     }
-
 ]
 
 
-# =====================================================
-# SUBMITTED REPORTS
-# =====================================================
-
-submitted_reports = []
-
-
-# =====================================================
+# ======================================================
 # ROOT
-# =====================================================
+# ======================================================
 
 @app.get("/")
 def root():
 
     return {
         "message":
-            "OIL SIF Safety Intelligence Engine is running"
+        "OIL SIF Safety Intelligence Engine is running"
     }
 
 
-# =====================================================
-# HEALTH
-# =====================================================
-
-@app.get("/health")
-def health():
-
-    return {
-        "status": "healthy"
-    }
-
-
-# =====================================================
-# ANALYZE REPORT
-# =====================================================
+# ======================================================
+# ANALYZE
+# ======================================================
 
 @app.post("/analyze")
 def analyze(request: ReportRequest):
 
-    result = analyze_report(
+    return analyze_report(
         request.report
     )
 
-    return result
 
-
-# =====================================================
+# ======================================================
 # DASHBOARD
-# =====================================================
+# ======================================================
 
 @app.get("/dashboard")
 def dashboard():
-
-    all_reports = (
-        demo_reports +
-        submitted_reports
-    )
 
     analyzed_reports = []
 
@@ -162,11 +135,7 @@ def dashboard():
     precursor_counts = {}
 
 
-    # =================================================
-    # ANALYZE ALL REPORTS
-    # =================================================
-
-    for item in all_reports:
+    for item in demo_reports:
 
         result = analyze_report(
             item["report"]
@@ -175,11 +144,9 @@ def dashboard():
 
         analyzed_reports.append({
 
-            "id":
-                item["id"],
+            "id": item["id"],
 
-            "report":
-                item["report"],
+            "report": item["report"],
 
             "risk_score":
                 result["risk_score"],
@@ -196,9 +163,9 @@ def dashboard():
         })
 
 
-        # =============================================
+        # ----------------------------------------------
         # RISK COUNTS
-        # =============================================
+        # ----------------------------------------------
 
         if result["risk_level"] == "CRITICAL":
 
@@ -217,23 +184,20 @@ def dashboard():
             low += 1
 
 
-        # =============================================
+        # ----------------------------------------------
         # PRECURSOR COUNTS
-        # =============================================
+        # ----------------------------------------------
 
         for precursor in result["precursors"]:
 
             precursor_counts[precursor] = (
-                precursor_counts.get(
-                    precursor,
-                    0
-                ) + 1
+                precursor_counts.get(precursor, 0) + 1
             )
 
 
-    # =================================================
-    # RESPONSE
-    # =================================================
+    # ==================================================
+    # RETURN DASHBOARD
+    # ==================================================
 
     return {
 
@@ -257,5 +221,4 @@ def dashboard():
 
         "reports":
             analyzed_reports
-
     }
