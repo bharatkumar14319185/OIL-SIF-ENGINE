@@ -37,216 +37,315 @@ const demoReports = {
 // GET ELEMENTS
 // =====================================================
 
-const reportInput = document.getElementById("reportInput");
+const reportInput =
+    document.getElementById("reportInput");
 
-const demoSelect = document.getElementById("demoSelect");
+const demoSelect =
+    document.getElementById("demoSelect");
 
-const analyzeBtn = document.getElementById("analyzeBtn");
+const analyzeBtn =
+    document.getElementById("analyzeBtn");
 
-const clearBtn = document.getElementById("clearBtn");
+const clearBtn =
+    document.getElementById("clearBtn");
 
-const reporterRole = document.getElementById("reporterRole");
+const reporterRole =
+    document.getElementById("reporterRole");
 
-const reportType = document.getElementById("reportType");
+const reportType =
+    document.getElementById("reportType");
 
-const locationInput = document.getElementById("locationInput");
 
-const workActivity = document.getElementById("workActivity");
+// IMPORTANT:
+// HTML uses id="locationInput"
 
-const resultSection = document.getElementById("resultSection");
+const locationInput =
+    document.getElementById("locationInput");
 
-const loadingMessage = document.getElementById("loadingMessage");
 
-const errorMessage = document.getElementById("errorMessage");
+const workActivity =
+    document.getElementById("workActivity");
+
+const resultSection =
+    document.getElementById("resultSection");
+
+const loadingMessage =
+    document.getElementById("loadingMessage");
+
+const errorMessage =
+    document.getElementById("errorMessage");
+
+const refreshDashboardBtn =
+    document.getElementById("refreshDashboard");
+
+
+// =====================================================
+// CHECK REQUIRED ELEMENTS
+// =====================================================
+
+const requiredElements = {
+
+    reportInput,
+    demoSelect,
+    analyzeBtn,
+    clearBtn,
+    reporterRole,
+    reportType,
+    locationInput,
+    workActivity,
+    resultSection,
+    loadingMessage,
+    errorMessage
+};
+
+
+Object.entries(requiredElements).forEach(
+    ([name, element]) => {
+
+        if (!element) {
+
+            console.error(
+                `HTML element not found: ${name}`
+            );
+        }
+    }
+);
 
 
 // =====================================================
 // DEMO SCENARIO SELECT
 // =====================================================
 
-demoSelect.addEventListener("change", function () {
+if (demoSelect) {
 
-    const selected = this.value;
+    demoSelect.addEventListener(
+        "change",
+        function () {
 
-    if (!selected) {
-        return;
-    }
-
-    if (!demoReports[selected]) {
-        return;
-    }
+            const selected =
+                this.value;
 
 
-    // Fill report
-
-    reportInput.value =
-        demoReports[selected];
-
-
-    // Automatically fill useful demo metadata
-
-    if (selected === "confined") {
-
-        reporterRole.value =
-            "Worker / Employee";
-
-        reportType.value =
-            "Unsafe Act";
-
-        locationInput.value =
-            "Confined Space Area";
-
-        workActivity.value =
-            "Confined Space Entry";
-    }
+            if (!selected) {
+                return;
+            }
 
 
-    else if (selected === "electrical") {
-
-        reporterRole.value =
-            "Supervisor / Shift In-charge";
-
-        reportType.value =
-            "Unsafe Act";
-
-        locationInput.value =
-            "Electrical Panel Area";
-
-        workActivity.value =
-            "Electrical Maintenance";
-    }
+            if (!demoReports[selected]) {
+                return;
+            }
 
 
-    else if (selected === "height") {
+            // Fill safety report
 
-        reporterRole.value =
-            "Safety / HSE Officer";
-
-        reportType.value =
-            "Unsafe Condition";
-
-        locationInput.value =
-            "Construction Area";
-
-        workActivity.value =
-            "Working at Height";
-    }
+            reportInput.value =
+                demoReports[selected];
 
 
-    else if (selected === "hydrocarbon") {
+            // -----------------------------------------
+            // CONFined SPACE
+            // -----------------------------------------
 
-        reporterRole.value =
-            "Worker / Employee";
+            if (selected === "confined") {
 
-        reportType.value =
-            "Near Miss";
+                reporterRole.value =
+                    "Worker / Employee";
 
-        locationInput.value =
-            "Hot Work Area";
+                reportType.value =
+                    "Unsafe Act";
 
-        workActivity.value =
-            "Hot Work";
-    }
+                locationInput.value =
+                    "Confined Space Area";
 
-
-    else if (selected === "ppe") {
-
-        reporterRole.value =
-            "Worker / Employee";
-
-        reportType.value =
-            "Unsafe Act";
-
-        locationInput.value =
-            "Chemical Handling Area";
-
-        workActivity.value =
-            "Hazardous Material Handling";
-    }
+                workActivity.value =
+                    "Confined Space Entry";
+            }
 
 
-    else if (selected === "vessel") {
+            // -----------------------------------------
+            // ELECTRICAL
+            // -----------------------------------------
 
-        reporterRole.value =
-            "Supervisor / Shift In-charge";
+            else if (selected === "electrical") {
 
-        reportType.value =
-            "Unsafe Act";
+                reporterRole.value =
+                    "Supervisor / Shift In-charge";
 
-        locationInput.value =
-            "Vessel Area";
+                reportType.value =
+                    "Unsafe Act";
 
-        workActivity.value =
-            "Vessel Entry";
-    }
+                locationInput.value =
+                    "Electrical Panel Area";
 
-
-    else if (selected === "energized") {
-
-        reporterRole.value =
-            "Maintenance / Operations";
-
-        reportType.value =
-            "Unsafe Act";
-
-        locationInput.value =
-            "Electrical Maintenance Area";
-
-        workActivity.value =
-            "Electrical Maintenance";
-    }
+                workActivity.value =
+                    "Electrical Maintenance";
+            }
 
 
-    else if (selected === "ventilation") {
+            // -----------------------------------------
+            // WORKING AT HEIGHT
+            // -----------------------------------------
 
-        reporterRole.value =
-            "Safety / HSE Officer";
+            else if (selected === "height") {
 
-        reportType.value =
-            "Unsafe Condition";
+                reporterRole.value =
+                    "Safety / HSE Officer";
 
-        locationInput.value =
-            "Confined Space";
+                reportType.value =
+                    "Unsafe Condition";
 
-        workActivity.value =
-            "Confined Space Inspection";
-    }
+                locationInput.value =
+                    "Construction Area";
+
+                workActivity.value =
+                    "Working at Height";
+            }
 
 
-    // Hide previous result
+            // -----------------------------------------
+            // HYDROCARBON
+            // -----------------------------------------
 
-    resultSection.classList.add("hidden");
+            else if (selected === "hydrocarbon") {
 
-    hideError();
+                reporterRole.value =
+                    "Worker / Employee";
 
-});
+                reportType.value =
+                    "Near Miss";
+
+                locationInput.value =
+                    "Hot Work Area";
+
+                workActivity.value =
+                    "Hot Work";
+            }
+
+
+            // -----------------------------------------
+            // PPE
+            // -----------------------------------------
+
+            else if (selected === "ppe") {
+
+                reporterRole.value =
+                    "Worker / Employee";
+
+                reportType.value =
+                    "Unsafe Act";
+
+                locationInput.value =
+                    "Chemical Handling Area";
+
+                workActivity.value =
+                    "Hazardous Material Handling";
+            }
+
+
+            // -----------------------------------------
+            // VESSEL
+            // -----------------------------------------
+
+            else if (selected === "vessel") {
+
+                reporterRole.value =
+                    "Supervisor / Shift In-charge";
+
+                reportType.value =
+                    "Unsafe Act";
+
+                locationInput.value =
+                    "Vessel Area";
+
+                workActivity.value =
+                    "Vessel Entry";
+            }
+
+
+            // -----------------------------------------
+            // ENERGIZED ELECTRICAL
+            // -----------------------------------------
+
+            else if (selected === "energized") {
+
+                reporterRole.value =
+                    "Maintenance / Operations";
+
+                reportType.value =
+                    "Unsafe Act";
+
+                locationInput.value =
+                    "Electrical Maintenance Area";
+
+                workActivity.value =
+                    "Electrical Maintenance";
+            }
+
+
+            // -----------------------------------------
+            // POOR VENTILATION
+            // -----------------------------------------
+
+            else if (selected === "ventilation") {
+
+                reporterRole.value =
+                    "Safety / HSE Officer";
+
+                reportType.value =
+                    "Unsafe Condition";
+
+                locationInput.value =
+                    "Confined Space";
+
+                workActivity.value =
+                    "Confined Space Inspection";
+            }
+
+
+            // Hide old result
+
+            resultSection.classList.add("hidden");
+
+            hideError();
+
+        }
+    );
+}
 
 
 // =====================================================
 // CLEAR FORM
 // =====================================================
 
-clearBtn.addEventListener("click", function () {
+if (clearBtn) {
 
-    reportInput.value = "";
+    clearBtn.addEventListener(
+        "click",
+        function () {
 
-    locationInput.value = "";
+            reportInput.value = "";
 
-    workActivity.value = "";
+            locationInput.value = "";
 
-    demoSelect.value = "";
+            workActivity.value = "";
 
-    reporterRole.value =
-        "Worker / Employee";
+            demoSelect.value = "";
 
-    reportType.value =
-        "Unsafe Act";
+            reporterRole.value =
+                "Worker / Employee";
 
-    resultSection.classList.add("hidden");
+            reportType.value =
+                "Unsafe Act";
 
-    hideError();
+            resultSection.classList.add(
+                "hidden"
+            );
 
-});
+            hideError();
+
+        }
+    );
+}
 
 
 // =====================================================
@@ -254,6 +353,10 @@ clearBtn.addEventListener("click", function () {
 // =====================================================
 
 function showError(message) {
+
+    if (!errorMessage) {
+        return;
+    }
 
     errorMessage.textContent =
         message;
@@ -269,6 +372,10 @@ function showError(message) {
 // =====================================================
 
 function hideError() {
+
+    if (!errorMessage) {
+        return;
+    }
 
     errorMessage.classList.add(
         "hidden"
@@ -286,7 +393,7 @@ async function analyzeReport() {
         reportInput.value.trim();
 
 
-    // Validate report
+    // Validate
 
     if (!report) {
 
@@ -301,7 +408,7 @@ async function analyzeReport() {
     hideError();
 
 
-    // Loading state
+    // Loading
 
     loadingMessage.classList.remove(
         "hidden"
@@ -319,44 +426,48 @@ async function analyzeReport() {
 
     try {
 
-        // =============================================
-        // SEND DATA TO BACKEND
-        // =============================================
+        // =========================================
+        // SEND DATA
+        // =========================================
 
-        const response = await fetch(
-            `${API_BASE_URL}/analyze`,
-            {
-                method: "POST",
+        const response =
+            await fetch(
+                `${API_BASE_URL}/analyze`,
+                {
+                    method: "POST",
 
-                headers: {
-                    "Content-Type":
-                        "application/json"
-                },
+                    headers: {
+                        "Content-Type":
+                            "application/json",
 
-                body: JSON.stringify({
+                        "Accept":
+                            "application/json"
+                    },
 
-                    report:
-                        report,
+                    body: JSON.stringify({
 
-                    reporter_role:
-                        reporterRole.value,
+                        report:
+                            report,
 
-                    report_type:
-                        reportType.value,
+                        reporter_role:
+                            reporterRole.value,
 
-                    location:
-                        locationInput.value,
+                        report_type:
+                            reportType.value,
 
-                    work_activity:
-                        workActivity.value
-                })
-            }
-        );
+                        location:
+                            locationInput.value,
+
+                        work_activity:
+                            workActivity.value
+                    })
+                }
+            );
 
 
-        // =============================================
+        // =========================================
         // CHECK RESPONSE
-        // =============================================
+        // =========================================
 
         if (!response.ok) {
 
@@ -366,17 +477,23 @@ async function analyzeReport() {
         }
 
 
-        // =============================================
-        // GET JSON
-        // =============================================
+        // =========================================
+        // JSON
+        // =========================================
 
         const data =
             await response.json();
 
 
-        // =============================================
-        // RENDER RESULT
-        // =============================================
+        console.log(
+            "Analysis result:",
+            data
+        );
+
+
+        // =========================================
+        // RENDER
+        // =========================================
 
         renderResult(data);
 
@@ -386,16 +503,16 @@ async function analyzeReport() {
         );
 
 
-        // =============================================
-        // REFRESH DASHBOARD
-        // =============================================
+        // =========================================
+        // DASHBOARD
+        // =========================================
 
         await loadDashboard();
 
 
-        // =============================================
-        // SCROLL TO RESULT
-        // =============================================
+        // =========================================
+        // SCROLL
+        // =========================================
 
         resultSection.scrollIntoView({
             behavior: "smooth",
@@ -440,10 +557,6 @@ async function analyzeReport() {
 
 function renderResult(data) {
 
-    // -----------------------------------------------
-    // Basic result
-    // -----------------------------------------------
-
     document.getElementById(
         "riskScore"
     ).textContent =
@@ -462,19 +575,11 @@ function renderResult(data) {
         data.category ?? "-";
 
 
-    // -----------------------------------------------
-    // Analysis
-    // -----------------------------------------------
-
     document.getElementById(
         "analysisText"
     ).textContent =
         data.analysis ?? "-";
 
-
-    // -----------------------------------------------
-    // Score
-    // -----------------------------------------------
 
     document.getElementById(
         "baseScore"
@@ -494,10 +599,6 @@ function renderResult(data) {
         data.risk_score ?? 0;
 
 
-    // -----------------------------------------------
-    // Original report
-    // -----------------------------------------------
-
     document.getElementById(
         "originalReport"
     ).textContent =
@@ -505,9 +606,9 @@ function renderResult(data) {
         reportInput.value;
 
 
-    // -----------------------------------------------
-    // Risk colour
-    // -----------------------------------------------
+    // =========================================
+    // RISK COLOR
+    // =========================================
 
     const riskLevel =
         String(
@@ -530,7 +631,6 @@ function renderResult(data) {
     riskScoreElement.style.color =
         "";
 
-
     riskLevelElement.style.color =
         "";
 
@@ -544,7 +644,6 @@ function renderResult(data) {
             "#dc2626";
     }
 
-
     else if (riskLevel === "HIGH") {
 
         riskScoreElement.style.color =
@@ -554,7 +653,6 @@ function renderResult(data) {
             "#ea580c";
     }
 
-
     else if (riskLevel === "MEDIUM") {
 
         riskScoreElement.style.color =
@@ -563,7 +661,6 @@ function renderResult(data) {
         riskLevelElement.style.color =
             "#ca8a04";
     }
-
 
     else if (riskLevel === "LOW") {
 
@@ -575,9 +672,9 @@ function renderResult(data) {
     }
 
 
-    // -----------------------------------------------
-    // Lists
-    // -----------------------------------------------
+    // =========================================
+    // LISTS
+    // =========================================
 
     renderList(
         "whyRiskList",
@@ -616,7 +713,7 @@ function renderResult(data) {
 
 
 // =====================================================
-// GENERIC LIST RENDER
+// GENERIC LIST
 // =====================================================
 
 function renderList(
@@ -630,6 +727,16 @@ function renderList(
         );
 
 
+    if (!element) {
+
+        console.error(
+            `Element not found: ${elementId}`
+        );
+
+        return;
+    }
+
+
     element.innerHTML = "";
 
 
@@ -639,7 +746,9 @@ function renderList(
     ) {
 
         const li =
-            document.createElement("li");
+            document.createElement(
+                "li"
+            );
 
 
         li.textContent =
@@ -655,7 +764,9 @@ function renderList(
     items.forEach(item => {
 
         const li =
-            document.createElement("li");
+            document.createElement(
+                "li"
+            );
 
 
         if (
@@ -675,6 +786,7 @@ function renderList(
 
 
         element.appendChild(li);
+
     });
 }
 
@@ -691,6 +803,16 @@ function renderBreakdown(items) {
         );
 
 
+    if (!element) {
+
+        console.error(
+            "breakdownList not found"
+        );
+
+        return;
+    }
+
+
     element.innerHTML = "";
 
 
@@ -700,7 +822,9 @@ function renderBreakdown(items) {
     ) {
 
         const li =
-            document.createElement("li");
+            document.createElement(
+                "li"
+            );
 
 
         li.textContent =
@@ -716,38 +840,31 @@ function renderBreakdown(items) {
     items.forEach(item => {
 
         const li =
-            document.createElement("li");
+            document.createElement(
+                "li"
+            );
 
 
         if (
-            typeof item === "object"
+            typeof item === "object" &&
+            item.factor !== undefined &&
+            item.points !== undefined
         ) {
 
-            if (
-                item.factor !== undefined &&
-                item.points !== undefined
-            ) {
-
-                li.textContent =
-                    `${item.factor}: +${item.points}`;
-            }
-
-            else {
-
-                li.textContent =
-                    JSON.stringify(item);
-            }
+            li.textContent =
+                `${item.factor}: +${item.points}`;
 
         }
 
         else {
 
             li.textContent =
-                item;
+                JSON.stringify(item);
         }
 
 
         element.appendChild(li);
+
     });
 }
 
@@ -764,7 +881,12 @@ async function loadDashboard() {
             await fetch(
                 `${API_BASE_URL}/dashboard`,
                 {
-                    cache: "no-store"
+                    method: "GET",
+                    cache: "no-store",
+                    headers: {
+                        "Accept":
+                            "application/json"
+                    }
                 }
             );
 
@@ -779,6 +901,12 @@ async function loadDashboard() {
 
         const data =
             await response.json();
+
+
+        console.log(
+            "Dashboard data:",
+            data
+        );
 
 
         renderDashboard(data);
@@ -800,10 +928,6 @@ async function loadDashboard() {
 // =====================================================
 
 function renderDashboard(data) {
-
-    // -----------------------------------------------
-    // Statistics
-    // -----------------------------------------------
 
     document.getElementById(
         "totalReports"
@@ -835,13 +959,7 @@ function renderDashboard(data) {
         data.low ?? 0;
 
 
-    // -----------------------------------------------
-    // Charts
-    // -----------------------------------------------
-
-    renderRiskDistribution(
-        data
-    );
+    renderRiskDistribution(data);
 
 
     renderPrecursorCounts(
@@ -865,6 +983,11 @@ function renderRiskDistribution(data) {
         document.getElementById(
             "riskBars"
         );
+
+
+    if (!container) {
+        return;
+    }
 
 
     container.innerHTML = "";
@@ -944,12 +1067,14 @@ function renderRiskDistribution(data) {
                 ></div>
 
             </div>
+
         `;
 
 
         container.appendChild(
             wrapper
         );
+
     });
 }
 
@@ -964,6 +1089,11 @@ function renderPrecursorCounts(data) {
         document.getElementById(
             "precursorCounts"
         );
+
+
+    if (!container) {
+        return;
+    }
 
 
     container.innerHTML = "";
@@ -1015,19 +1145,21 @@ function renderPrecursorCounts(data) {
                 <span style="float:right;">
                     ${count}
                 </span>
+
             `;
 
 
             container.appendChild(
                 div
             );
+
         }
     );
 }
 
 
 // =====================================================
-// RECENT REPORTS
+// RECENT SAFETY REPORTS
 // =====================================================
 
 function renderRecentReports(reports) {
@@ -1038,34 +1170,43 @@ function renderRecentReports(reports) {
         );
 
 
-    tbody.innerHTML = "";
+    if (!tbody) {
 
-
-    if (
-        !reports ||
-        reports.length === 0
-    ) {
-
-        const row =
-            document.createElement(
-                "tr"
-            );
-
-
-        row.innerHTML = `
-            <td colspan="7">
-                No reports available.
-            </td>
-        `;
-
-
-        tbody.appendChild(row);
+        console.error(
+            "recentReports element not found in HTML."
+        );
 
         return;
     }
 
 
-    // Latest reports first
+    tbody.innerHTML = "";
+
+
+    if (
+        !Array.isArray(reports) ||
+        reports.length === 0
+    ) {
+
+        tbody.innerHTML = `
+
+            <tr>
+
+                <td colspan="7">
+                    No reports available.
+                </td>
+
+            </tr>
+
+        `;
+
+        return;
+    }
+
+
+    // =========================================
+    // LATEST REPORTS FIRST
+    // =========================================
 
     const sortedReports =
         [...reports].sort(
@@ -1075,128 +1216,151 @@ function renderRecentReports(reports) {
         );
 
 
-    sortedReports.forEach(report => {
+    // =========================================
+    // CREATE ROWS
+    // =========================================
 
-        const row =
-            document.createElement(
-                "tr"
-            );
+    sortedReports.forEach(
+        report => {
 
-
-        const risk =
-            String(
-                report.risk_level || ""
-            ).toLowerCase();
-
-
-        let badgeClass =
-            "badge-low";
+            const row =
+                document.createElement(
+                    "tr"
+                );
 
 
-        if (
-            risk === "critical"
-        ) {
-
-            badgeClass =
-                "badge-critical";
-        }
-
-        else if (
-            risk === "high"
-        ) {
-
-            badgeClass =
-                "badge-high";
-        }
-
-        else if (
-            risk === "medium"
-        ) {
-
-            badgeClass =
-                "badge-medium";
-        }
+            const risk =
+                String(
+                    report.risk_level || ""
+                ).toUpperCase();
 
 
-        const precursors =
-            Array.isArray(
-                report.precursors
-            )
-                ? report.precursors.join(
-                    ", "
+            let badgeClass =
+                "badge-low";
+
+
+            if (
+                risk === "CRITICAL"
+            ) {
+
+                badgeClass =
+                    "badge-critical";
+            }
+
+            else if (
+                risk === "HIGH"
+            ) {
+
+                badgeClass =
+                    "badge-high";
+            }
+
+            else if (
+                risk === "MEDIUM"
+            ) {
+
+                badgeClass =
+                    "badge-medium";
+            }
+
+
+            // =================================
+            // PRECURSORS
+            // =================================
+
+            const precursors =
+                Array.isArray(
+                    report.precursors
                 )
-                : "-";
+                    ? report.precursors.join(
+                        ", "
+                    )
+                    : "-";
 
 
-        row.innerHTML = `
+            // =================================
+            // ROW HTML
+            // =================================
 
-            <td>
-                ${report.id ?? "-"}
-            </td>
+            row.innerHTML = `
 
-
-            <td>
-                ${escapeHtml(
-                    report.reporter_role ??
-                    "-"
-                )}
-            </td>
-
-
-            <td>
-                ${escapeHtml(
-                    report.report_type ??
-                    "-"
-                )}
-            </td>
-
-
-            <td>
-                ${escapeHtml(
-                    report.location ??
-                    "-"
-                )}
-            </td>
-
-
-            <td>
-
-                <span class="badge ${badgeClass}">
-
+                <td>
                     ${escapeHtml(
-                        report.risk_level ??
+                        report.id ?? "-"
+                    )}
+                </td>
+
+
+                <td>
+                    ${escapeHtml(
+                        report.reporter_role ??
                         "-"
                     )}
-
-                    -
-                    ${report.risk_score ?? 0}
-
-                </span>
-
-            </td>
+                </td>
 
 
-            <td>
-                ${escapeHtml(
-                    report.category ??
-                    "-"
-                )}
-            </td>
+                <td>
+                    ${escapeHtml(
+                        report.report_type ??
+                        "-"
+                    )}
+                </td>
 
 
-            <td>
-                ${escapeHtml(
-                    precursors
-                )}
-            </td>
+                <td>
+                    ${escapeHtml(
+                        report.location ||
+                        "-"
+                    )}
+                </td>
 
-        `;
+
+                <td>
+
+                    <span
+                        class="badge ${badgeClass}"
+                    >
+
+                        ${escapeHtml(
+                            report.risk_level ??
+                            "-"
+                        )}
+
+                        -
+
+                        ${escapeHtml(
+                            report.risk_score ??
+                            0
+                        )}
+
+                    </span>
+
+                </td>
 
 
-        tbody.appendChild(
-            row
-        );
-    });
+                <td>
+                    ${escapeHtml(
+                        report.category ??
+                        "-"
+                    )}
+                </td>
+
+
+                <td>
+                    ${escapeHtml(
+                        precursors
+                    )}
+                </td>
+
+            `;
+
+
+            tbody.appendChild(
+                row
+            );
+
+        }
+    );
 }
 
 
@@ -1245,46 +1409,52 @@ function refreshDashboard() {
 }
 
 
-// =====================================================
-// BUTTON EVENTS
-// =====================================================
+if (refreshDashboardBtn) {
 
-analyzeBtn.addEventListener(
-    "click",
-    analyzeReport
-);
-
-
-document
-    .getElementById(
-        "refreshDashboard"
-    )
-    .addEventListener(
+    refreshDashboardBtn.addEventListener(
         "click",
         refreshDashboard
     );
+}
+
+
+// =====================================================
+// ANALYZE BUTTON
+// =====================================================
+
+if (analyzeBtn) {
+
+    analyzeBtn.addEventListener(
+        "click",
+        analyzeReport
+    );
+}
 
 
 // =====================================================
 // CTRL + ENTER
 // =====================================================
 
-reportInput.addEventListener(
-    "keydown",
-    function (event) {
+if (reportInput) {
 
-        if (
-            (event.ctrlKey ||
-             event.metaKey) &&
-            event.key === "Enter"
-        ) {
+    reportInput.addEventListener(
+        "keydown",
+        function (event) {
 
-            event.preventDefault();
+            if (
+                (event.ctrlKey ||
+                 event.metaKey) &&
+                event.key === "Enter"
+            ) {
 
-            analyzeReport();
+                event.preventDefault();
+
+                analyzeReport();
+            }
+
         }
-    }
-);
+    );
+}
 
 
 // =====================================================

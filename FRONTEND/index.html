@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
 
@@ -12,13 +13,17 @@
 
 <body>
 
-    <!-- ================= HEADER ================= -->
+    <!-- =====================================================
+         HEADER
+    ====================================================== -->
 
     <header class="header">
+
         <div class="header-content">
 
             <div>
                 <h1>OIL SIF Safety Intelligence Engine</h1>
+
                 <p>
                     AI/NLP-assisted detection of Serious Injury & Fatality precursors
                 </p>
@@ -30,28 +35,39 @@
             </div>
 
         </div>
+
     </header>
 
 
     <main class="container">
 
-        <!-- ================= SUBMIT REPORT ================= -->
+
+        <!-- =====================================================
+             SUBMIT SAFETY REPORT
+        ====================================================== -->
 
         <section class="card">
 
             <div class="section-title">
+
                 <h2>Submit Safety Report</h2>
+
                 <p>
                     Analyze Unsafe Acts, Unsafe Conditions and Near-Miss Reports
                 </p>
+
             </div>
 
 
-            <!-- REPORTER ROLE -->
+            <!-- FORM GRID -->
 
             <div class="form-grid">
 
+
+                <!-- REPORTER ROLE -->
+
                 <div class="form-group">
+
                     <label for="reporterRole">
                         Reporter Role
                     </label>
@@ -79,6 +95,7 @@
                         </option>
 
                     </select>
+
                 </div>
 
 
@@ -145,7 +162,9 @@
             </div>
 
 
-            <!-- DEMO SCENARIO -->
+            <!-- =================================================
+                 QUICK DEMO
+            ================================================== -->
 
             <div class="form-group">
 
@@ -196,7 +215,9 @@
             </div>
 
 
-            <!-- SAFETY REPORT -->
+            <!-- =================================================
+                 SAFETY REPORT
+            ================================================== -->
 
             <div class="form-group">
 
@@ -224,9 +245,8 @@ Worker entered a confined space without gas testing and without permit."
                     id="analyzeBtn"
                     class="primary-btn"
                 >
-                    Analyze Report
+                    🔍 Analyze Safety Report
                 </button>
-
 
                 <button
                     id="clearBtn"
@@ -258,7 +278,9 @@ Worker entered a confined space without gas testing and without permit."
         </section>
 
 
-        <!-- ================= RESULT ================= -->
+        <!-- =====================================================
+             SAFETY INTELLIGENCE RESULT
+        ====================================================== -->
 
         <section
             id="resultSection"
@@ -276,9 +298,10 @@ Worker entered a confined space without gas testing and without permit."
             </div>
 
 
-            <!-- TOP RESULT -->
+            <!-- RESULT SUMMARY -->
 
             <div class="result-grid">
+
 
                 <div class="result-box">
 
@@ -325,7 +348,9 @@ Worker entered a confined space without gas testing and without permit."
 
             <div class="result-section">
 
-                <h3>Analysis</h3>
+                <h3>
+                    Analysis
+                </h3>
 
                 <p id="analysisText">
                     -
@@ -338,7 +363,9 @@ Worker entered a confined space without gas testing and without permit."
 
             <div class="result-section">
 
-                <h3>Why is this Risky?</h3>
+                <h3>
+                    Why is this Risky?
+                </h3>
 
                 <ul id="whyRiskList"></ul>
 
@@ -349,23 +376,49 @@ Worker entered a confined space without gas testing and without permit."
 
             <div class="result-section">
 
-                <h3>Risk Score Breakdown</h3>
+                <h3>
+                    Risk Score Breakdown
+                </h3>
+
 
                 <div class="score-grid">
 
                     <div>
-                        <span>Base Score</span>
-                        <strong id="baseScore">-</strong>
+
+                        <span>
+                            Base Score
+                        </span>
+
+                        <strong id="baseScore">
+                            -
+                        </strong>
+
                     </div>
 
-                    <div>
-                        <span>Detected Points</span>
-                        <strong id="detectedPoints">-</strong>
-                    </div>
 
                     <div>
-                        <span>Final Score</span>
-                        <strong id="finalScore">-</strong>
+
+                        <span>
+                            Detected Points
+                        </span>
+
+                        <strong id="detectedPoints">
+                            -
+                        </strong>
+
+                    </div>
+
+
+                    <div>
+
+                        <span>
+                            Final Score
+                        </span>
+
+                        <strong id="finalScore">
+                            -
+                        </strong>
+
                     </div>
 
                 </div>
@@ -380,7 +433,9 @@ Worker entered a confined space without gas testing and without permit."
 
             <div class="result-section">
 
-                <h3>Detected Evidence</h3>
+                <h3>
+                    Detected Evidence
+                </h3>
 
                 <ul id="evidenceList"></ul>
 
@@ -391,7 +446,9 @@ Worker entered a confined space without gas testing and without permit."
 
             <div class="result-section">
 
-                <h3>SIF Precursors</h3>
+                <h3>
+                    SIF Precursors
+                </h3>
 
                 <ul id="precursorsList"></ul>
 
@@ -402,7 +459,9 @@ Worker entered a confined space without gas testing and without permit."
 
             <div class="result-section">
 
-                <h3>Potential Consequences</h3>
+                <h3>
+                    Potential Consequences
+                </h3>
 
                 <ul id="consequencesList"></ul>
 
@@ -413,7 +472,9 @@ Worker entered a confined space without gas testing and without permit."
 
             <div class="result-section">
 
-                <h3>Recommended Corrective Actions</h3>
+                <h3>
+                    Recommended Corrective Actions
+                </h3>
 
                 <ul id="actionsList"></ul>
 
@@ -424,7 +485,9 @@ Worker entered a confined space without gas testing and without permit."
 
             <div class="result-section">
 
-                <h3>Original Report</h3>
+                <h3>
+                    Original Report
+                </h3>
 
                 <div
                     id="originalReport"
@@ -436,7 +499,9 @@ Worker entered a confined space without gas testing and without permit."
         </section>
 
 
-        <!-- ================= DASHBOARD ================= -->
+        <!-- =====================================================
+             DASHBOARD
+        ====================================================== -->
 
         <section class="card">
 
@@ -444,7 +509,9 @@ Worker entered a confined space without gas testing and without permit."
 
                 <div>
 
-                    <h2>Safety Intelligence Dashboard</h2>
+                    <h2>
+                        Safety Intelligence Dashboard
+                    </h2>
 
                     <p>
                         Overview of analyzed safety reports
@@ -463,9 +530,10 @@ Worker entered a confined space without gas testing and without permit."
             </div>
 
 
-            <!-- STAT CARDS -->
+            <!-- STATISTICS -->
 
             <div class="stats-grid">
+
 
                 <div class="stat-card">
 
@@ -547,7 +615,7 @@ Worker entered a confined space without gas testing and without permit."
             </div>
 
 
-            <!-- PRECURSOR COUNTS -->
+            <!-- PRECURSOR FREQUENCY -->
 
             <div class="dashboard-section">
 
@@ -601,7 +669,7 @@ Worker entered a confined space without gas testing and without permit."
                             <tr>
 
                                 <td colspan="7">
-                                    No reports available
+                                    Loading reports...
                                 </td>
 
                             </tr>
@@ -619,7 +687,9 @@ Worker entered a confined space without gas testing and without permit."
     </main>
 
 
-    <!-- ================= FOOTER ================= -->
+    <!-- =====================================================
+         FOOTER
+    ====================================================== -->
 
     <footer class="footer">
 
@@ -641,4 +711,5 @@ Worker entered a confined space without gas testing and without permit."
     <script src="script.js"></script>
 
 </body>
+
 </html>
