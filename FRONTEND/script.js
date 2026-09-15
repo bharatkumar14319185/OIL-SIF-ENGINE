@@ -49,7 +49,7 @@ const reporterRole = document.getElementById("reporterRole");
 
 const reportType = document.getElementById("reportType");
 
-const locationInput = document.getElementById("location");
+const locationInput = document.getElementById("locationInput");
 
 const workActivity = document.getElementById("workActivity");
 
