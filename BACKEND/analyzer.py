@@ -6,9 +6,63 @@ import re
 # ======================================================
 
 def normalize_text(text):
-    text = text.lower()
+    if not text:
+        return ""
+
+    text = str(text).lower()
     text = re.sub(r"\s+", " ", text)
     return text.strip()
+
+
+# ======================================================
+# HELPER FUNCTIONS
+# ======================================================
+
+def contains_any(text, phrases):
+    return any(phrase in text for phrase in phrases)
+
+
+def unique_list(items):
+    return list(dict.fromkeys(items))
+
+
+# ======================================================
+# STRUCTURED REPORT BUILDER
+# ======================================================
+
+def build_report(
+    location="",
+    activity="",
+    incident="",
+    unsafe_act="",
+    controls="",
+    ppe="",
+    details=""
+):
+    parts = []
+
+    if location:
+        parts.append(f"Location / Work Area: {location}")
+
+    if activity:
+        parts.append(f"Activity / Task: {activity}")
+
+    if incident:
+        parts.append(f"Incident / Observation: {incident}")
+
+    if unsafe_act:
+        parts.append(f"Unsafe Act / Unsafe Condition: {unsafe_act}")
+
+    if controls:
+        parts.append(f"Existing Safety Controls: {controls}")
+
+    if ppe:
+        parts.append(f"PPE: {ppe}")
+
+    if details:
+        parts.append(f"Additional Details: {details}")
+
+    return ". ".join(parts)
 
 
 # ======================================================
@@ -35,21 +89,65 @@ def analyze_report(report):
     # CONFINED SPACE
     # ==================================================
 
-    if any(word in text for word in [
+    confined_space_context = contains_any(text, [
         "confined space",
-        "vessel",
-        "tank",
-        "manhole"
-    ]):
+        "entered a confined",
+        "entered the vessel",
+        "entered vessel",
+        "entered the tank",
+        "entered tank",
+        "inside the vessel",
+        "inside vessel",
+        "inside the tank",
+        "inside tank",
+        "entered the manhole",
+        "entered manhole",
+        "inside the manhole",
+        "inside manhole",
+        "underground chamber",
+        "valve chamber",
+        "process vessel",
+        "storage tank",
+        "internal inspection"
+    ])
+
+    if confined_space_context:
 
         categories.append("Confined Space")
 
-        if any(phrase in text for phrase in [
+        # ------------------------------
+        # GAS TESTING
+        # ------------------------------
+
+        no_gas_testing = contains_any(text, [
             "without gas testing",
+            "without gas test",
             "no gas testing",
+            "no gas test",
             "gas testing was not carried out",
-            "gas test not carried out"
-        ]):
+            "gas testing was not done",
+            "gas test was not carried out",
+            "gas test was not done",
+            "gas testing not carried out",
+            "gas testing not done",
+            "gas test not carried out",
+            "gas test not done",
+            "gas testing was skipped",
+            "gas testing skipped"
+        ])
+
+        gas_testing_completed = contains_any(text, [
+            "gas testing was completed",
+            "gas testing was carried out",
+            "gas testing was done",
+            "gas test was completed",
+            "gas test was carried out",
+            "gas test was done",
+            "atmospheric testing was completed",
+            "atmospheric testing was carried out"
+        ])
+
+        if no_gas_testing and not gas_testing_completed:
 
             precursors.append("No Gas Testing")
 
@@ -66,7 +164,7 @@ def analyze_report(report):
             )
 
             evidence.append(
-                "Gas testing was not carried out"
+                "Gas testing was not carried out before entry"
             )
 
             detected_points += 45
@@ -76,13 +174,31 @@ def analyze_report(report):
                 "points": 45
             })
 
-        if any(phrase in text for phrase in [
+        # ------------------------------
+        # ENTRY PERMIT
+        # ------------------------------
+
+        no_permit = contains_any(text, [
             "without permit",
+            "without entry permit",
             "no permit",
+            "no entry permit",
             "permit violation",
             "entry permit was not obtained",
-            "without entry permit"
-        ]):
+            "entry permit was not issued",
+            "permit was not obtained",
+            "permit was not issued"
+        ])
+
+        permit_available = contains_any(text, [
+            "permit was obtained",
+            "entry permit was obtained",
+            "permit was issued",
+            "entry permit was issued",
+            "valid permit"
+        ])
+
+        if no_permit and not permit_available:
 
             precursors.append("Permit Violation")
 
@@ -109,10 +225,17 @@ def analyze_report(report):
                 "points": 25
             })
 
-        if any(phrase in text for phrase in [
+        # ------------------------------
+        # VENTILATION
+        # ------------------------------
+
+        if contains_any(text, [
             "poor ventilation",
             "poorly ventilated",
-            "insufficient ventilation"
+            "insufficient ventilation",
+            "inadequate ventilation",
+            "ventilation was inadequate",
+            "ventilation was poor"
         ]):
 
             precursors.append("Poor Ventilation")
@@ -130,7 +253,7 @@ def analyze_report(report):
             )
 
             evidence.append(
-                "Poor ventilation was observed"
+                "Poor or inadequate ventilation was observed"
             )
 
             detected_points += 35
@@ -140,24 +263,40 @@ def analyze_report(report):
                 "points": 35
             })
 
-
     # ==================================================
     # WORKING AT HEIGHT
     # ==================================================
 
-    if any(word in text for word in [
+    height_context = contains_any(text, [
         "working at height",
         "work at height",
-        "height"
-    ]):
+        "working at an elevated",
+        "elevated work area",
+        "working on scaffold",
+        "working on scaffolding",
+        "working on a platform",
+        "working on platform",
+        "roof work",
+        "height maintenance"
+    ])
+
+    if height_context:
 
         categories.append("Working at Height")
 
-        if any(phrase in text for phrase in [
+        # ------------------------------
+        # FALL PROTECTION
+        # ------------------------------
+
+        if contains_any(text, [
             "without a safety harness",
+            "without safety harness",
             "without harness",
             "no harness",
-            "missing fall protection"
+            "missing fall protection",
+            "fall protection was missing",
+            "fall protection was not used",
+            "without fall protection"
         ]):
 
             precursors.append("Missing Fall Protection")
@@ -175,7 +314,7 @@ def analyze_report(report):
             )
 
             evidence.append(
-                "Fall protection was missing"
+                "Required fall protection was missing or not used"
             )
 
             detected_points += 50
@@ -185,10 +324,17 @@ def analyze_report(report):
                 "points": 50
             })
 
-        if any(phrase in text for phrase in [
+        # ------------------------------
+        # GUARDRAIL
+        # ------------------------------
+
+        if contains_any(text, [
             "without guardrail",
+            "without a guardrail",
             "no guardrail",
-            "missing guardrail"
+            "missing guardrail",
+            "guardrail was missing",
+            "guardrail was not provided"
         ]):
 
             precursors.append("Missing Guardrail")
@@ -206,7 +352,7 @@ def analyze_report(report):
             )
 
             evidence.append(
-                "Guardrail was missing"
+                "Guardrail was missing or not provided"
             )
 
             detected_points += 40
@@ -216,27 +362,48 @@ def analyze_report(report):
                 "points": 40
             })
 
-
     # ==================================================
     # ELECTRICAL
     # ==================================================
 
-    if any(word in text for word in [
+    electrical_context = contains_any(text, [
         "electrical panel",
-        "electrical",
+        "electrical equipment",
+        "electrical maintenance",
+        "electrical work",
         "energized panel",
-        "electrical work"
-    ]):
+        "energized electrical",
+        "electrical system"
+    ])
+
+    if electrical_context:
 
         categories.append("Electrical")
 
-        if any(phrase in text for phrase in [
+        # ------------------------------
+        # LOTO
+        # ------------------------------
+
+        loto_missing = contains_any(text, [
             "without loto",
             "loto was not applied",
             "loto not applied",
+            "loto was not used",
             "without lockout",
-            "lockout was not applied"
-        ]):
+            "without lockout tagout",
+            "lockout was not applied",
+            "lockout/tagout was not applied",
+            "lockout tagout was not applied"
+        ])
+
+        loto_completed = contains_any(text, [
+            "loto was applied",
+            "loto was completed",
+            "lockout was applied",
+            "lockout tagout was applied"
+        ])
+
+        if loto_missing and not loto_completed:
 
             precursors.append("LOTO Violation")
 
@@ -253,7 +420,7 @@ def analyze_report(report):
             )
 
             evidence.append(
-                "LOTO was not applied"
+                "LOTO was not applied before electrical work"
             )
 
             detected_points += 50
@@ -263,11 +430,28 @@ def analyze_report(report):
                 "points": 50
             })
 
-        if any(phrase in text for phrase in [
+        # ------------------------------
+        # ELECTRICAL ISOLATION
+        # ------------------------------
+
+        isolation_missing = contains_any(text, [
             "without electrical isolation",
             "no electrical isolation",
-            "electrical isolation was not done"
-        ]):
+            "electrical isolation was not done",
+            "electrical isolation was not performed",
+            "without isolation",
+            "energy isolation was not done",
+            "energy was not isolated"
+        ])
+
+        isolation_completed = contains_any(text, [
+            "electrical isolation was completed",
+            "electrical isolation was performed",
+            "electrical energy was isolated",
+            "energy was isolated"
+        ])
+
+        if isolation_missing and not isolation_completed:
 
             precursors.append("No Electrical Isolation")
 
@@ -294,27 +478,37 @@ def analyze_report(report):
                 "points": 45
             })
 
-
     # ==================================================
     # FIRE / EXPLOSION
     # ==================================================
 
-    if any(word in text for word in [
+    fire_context = contains_any(text, [
         "hydrocarbon",
         "flammable",
         "hot work",
         "fire",
-        "explosion"
-    ]):
+        "explosion",
+        "oil leak",
+        "fuel leak"
+    ])
+
+    if fire_context:
 
         categories.append("Fire / Explosion")
 
-        if any(phrase in text for phrase in [
+        # ------------------------------
+        # HYDROCARBON LEAK
+        # ------------------------------
+
+        if contains_any(text, [
             "hydrocarbon leak",
             "hydrocarbon leak was observed",
             "hydrocarbon spill",
+            "hydrocarbon release",
             "oil leak",
-            "flammable leak"
+            "flammable leak",
+            "fuel leak",
+            "hydrocarbon leakage"
         ]):
 
             precursors.append("Hydrocarbon Leak/Spill")
@@ -342,11 +536,17 @@ def analyze_report(report):
                 "points": 40
             })
 
+        # ------------------------------
+        # HOT WORK NEAR FLAMMABLE
+        # ------------------------------
+
         if (
             "hot work" in text
-            and any(word in text for word in [
+            and contains_any(text, [
                 "flammable",
-                "hydrocarbon"
+                "hydrocarbon",
+                "fuel",
+                "combustible"
             ])
         ):
 
@@ -367,7 +567,7 @@ def analyze_report(report):
             )
 
             evidence.append(
-                "Hot work was performed near flammable material"
+                "Hot work was identified near flammable or hydrocarbon material"
             )
 
             detected_points += 45
@@ -377,26 +577,33 @@ def analyze_report(report):
                 "points": 45
             })
 
-
     # ==================================================
     # PPE
     # ==================================================
 
-    if any(word in text for word in [
+    ppe_context = contains_any(text, [
         "ppe",
         "helmet",
         "gloves",
-        "safety equipment"
-    ]):
+        "safety equipment",
+        "protective equipment"
+    ])
+
+    if ppe_context:
 
         categories.append("PPE")
 
-        missing_ppe = False
+        # ------------------------------
+        # HELMET
+        # ------------------------------
 
-        if any(phrase in text for phrase in [
+        if contains_any(text, [
             "without helmet",
+            "without a helmet",
             "no helmet",
-            "missing helmet"
+            "missing helmet",
+            "helmet was not used",
+            "helmet was not worn"
         ]):
 
             precursors.append("Improper PPE")
@@ -414,7 +621,7 @@ def analyze_report(report):
             )
 
             evidence.append(
-                "Helmet was not used"
+                "Helmet was not used or worn"
             )
 
             detected_points += 20
@@ -424,12 +631,17 @@ def analyze_report(report):
                 "points": 20
             })
 
-            missing_ppe = True
+        # ------------------------------
+        # GLOVES
+        # ------------------------------
 
-        if any(phrase in text for phrase in [
+        if contains_any(text, [
             "without gloves",
+            "without protective gloves",
             "no gloves",
-            "missing gloves"
+            "missing gloves",
+            "gloves were not used",
+            "gloves were not worn"
         ]):
 
             precursors.append("Improper PPE")
@@ -447,7 +659,7 @@ def analyze_report(report):
             )
 
             evidence.append(
-                "Gloves were not used"
+                "Gloves were not used or worn"
             )
 
             detected_points += 15
@@ -457,27 +669,30 @@ def analyze_report(report):
                 "points": 15
             })
 
-            missing_ppe = True
-
-
     # ==================================================
     # CHEMICAL EXPOSURE
     # ==================================================
 
-    if any(word in text for word in [
+    chemical_context = contains_any(text, [
         "hazardous material",
         "chemical",
         "chemical exposure",
-        "toxic substance"
-    ]):
+        "toxic substance",
+        "hazardous substance"
+    ])
+
+    if chemical_context:
 
         categories.append("Chemical Exposure")
 
-        if any(phrase in text for phrase in [
+        if contains_any(text, [
             "handling hazardous material",
+            "handled hazardous material",
             "chemical exposure",
             "exposure to chemical",
-            "without gloves"
+            "exposure to hazardous material",
+            "without chemical gloves",
+            "hazardous substance exposure"
         ]):
 
             precursors.append("Chemical Exposure")
@@ -495,7 +710,7 @@ def analyze_report(report):
             )
 
             evidence.append(
-                "Hazardous material exposure was identified"
+                "Hazardous material or chemical exposure was identified"
             )
 
             detected_points += 30
@@ -505,18 +720,32 @@ def analyze_report(report):
                 "points": 30
             })
 
+    # ==================================================
+    # GENERAL SIF SIGNALS
+    # ==================================================
+
+    if contains_any(text, [
+        "near miss",
+        "unsafe condition",
+        "unsafe act",
+        "serious injury",
+        "fatality",
+        "potential fatality"
+    ]):
+
+        if "General Safety" not in categories and not categories:
+            categories.append("General Safety")
 
     # ==================================================
     # REMOVE DUPLICATES
     # ==================================================
 
-    precursors = list(dict.fromkeys(precursors))
-    consequences = list(dict.fromkeys(consequences))
-    actions = list(dict.fromkeys(actions))
-    detected_hazards = list(dict.fromkeys(detected_hazards))
-    evidence = list(dict.fromkeys(evidence))
-    categories = list(dict.fromkeys(categories))
-
+    precursors = unique_list(precursors)
+    consequences = unique_list(consequences)
+    actions = unique_list(actions)
+    detected_hazards = unique_list(detected_hazards)
+    evidence = unique_list(evidence)
+    categories = unique_list(categories)
 
     # ==================================================
     # CATEGORY
@@ -526,7 +755,6 @@ def analyze_report(report):
         category = " / ".join(categories)
     else:
         category = "General Safety"
-
 
     # ==================================================
     # FINAL SCORE
@@ -549,7 +777,6 @@ def analyze_report(report):
     else:
         risk_level = "LOW"
 
-
     # ==================================================
     # EXPLAINABLE AI
     # ==================================================
@@ -557,26 +784,41 @@ def analyze_report(report):
     why_risk = []
 
     if not score_breakdown:
+
         why_risk.append(
             "No major predefined SIF precursor was detected."
         )
 
     else:
+
         for item in score_breakdown:
+
             why_risk.append(
                 f"{item['factor']} contributed "
                 f"+{item['points']} points to the risk score."
             )
 
+    # ==================================================
+    # ANALYSIS
+    # ==================================================
 
-    analysis = (
-        f"The report was analyzed using a hybrid NLP and "
-        f"rule-based safety engine. "
-        f"The system detected {len(precursors)} SIF precursor(s) "
-        f"and calculated a prioritization score of "
-        f"{risk_score}/100, classified as {risk_level}."
-    )
+    if precursors:
 
+        analysis = (
+            f"The report was analyzed using a hybrid NLP and "
+            f"rule-based safety intelligence engine. "
+            f"The system detected {len(precursors)} SIF precursor(s) "
+            f"and calculated a prioritization score of "
+            f"{risk_score}/100, classified as {risk_level}."
+        )
+
+    else:
+
+        analysis = (
+            "The report was analyzed using a hybrid NLP and "
+            "rule-based safety intelligence engine. "
+            "No major predefined SIF precursor was detected."
+        )
 
     # ==================================================
     # RETURN

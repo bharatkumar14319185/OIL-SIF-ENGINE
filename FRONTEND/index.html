@@ -5,27 +5,11 @@
 
     <meta charset="UTF-8">
 
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
-
-    <meta
-        name="description"
-        content="OIL SIF Safety Intelligence Engine - AI/NLP-assisted detection and prioritization of Serious Injury and Fatality precursors"
-    >
-
-    <meta
-        name="theme-color"
-        content="#0b1220"
-    >
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>OIL SIF Safety Intelligence Engine</title>
 
-    <link
-        rel="stylesheet"
-        href="style.css"
-    >
+    <link rel="stylesheet" href="style.css">
 
 </head>
 
@@ -34,353 +18,524 @@
 
 
 <!-- =====================================================
-     HEADER
-     ===================================================== -->
+HEADER
+===================================================== -->
 
-<header>
+<header class="top-header">
 
-    <div class="container navbar">
+    <div class="logo">
+        OIL <span>SIF Safety Intelligence Engine</span>
+    </div>
 
-        <div class="logo">
-
-            <div class="logo-icon">
-                🛡️
-            </div>
-
-            <div>
-                OIL
-                <span>SIF Safety Intelligence Engine</span>
-            </div>
-
-        </div>
-
+    <div class="header-badge">
+        AI / NLP SAFETY INTELLIGENCE
     </div>
 
 </header>
 
 
-
 <!-- =====================================================
-     HERO
-     ===================================================== -->
+HERO
+===================================================== -->
 
 <section class="hero">
 
-    <div class="container">
+    <div class="hero-content">
+
+        <p class="hero-tag">
+            OIL SIF
+        </p>
 
         <h1>
-            OIL SIF
-            <span>Safety Intelligence Engine</span>
+            Safety Intelligence Engine
         </h1>
 
-        <p>
-            AI/NLP-assisted detection and prioritization
-            of Serious Injury &amp; Fatality (SIF) precursors
+        <p class="hero-description">
+
+            AI/NLP-assisted detection of
+            <strong>Serious Injury & Fatality precursors</strong>
             from unsafe-act, unsafe-condition and near-miss reports.
+
+        </p>
+
+        <div class="hero-tech">
+
+            <span>Hybrid NLP</span>
+            <span>Rule Engine</span>
+            <span>Explainable Risk</span>
+            <span>Corrective Actions</span>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- =====================================================
+DASHBOARD
+===================================================== -->
+
+<section class="dashboard-section">
+
+    <div class="section-heading">
+
+        <div>
+
+            <p class="section-label">
+                MONITORING
+            </p>
+
+            <h2>
+                Safety Dashboard
+            </h2>
+
+        </div>
+
+    </div>
+
+
+    <div class="stats-grid">
+
+
+        <div class="stat-card">
+
+            <div class="stat-title">
+                Total Reports
+            </div>
+
+            <div
+                class="stat-value"
+                id="totalReports">
+                0
+            </div>
+
+        </div>
+
+
+        <div class="stat-card critical-card">
+
+            <div class="stat-title">
+                Critical
+            </div>
+
+            <div
+                class="stat-value"
+                id="criticalReports">
+                0
+            </div>
+
+        </div>
+
+
+        <div class="stat-card high-card">
+
+            <div class="stat-title">
+                High
+            </div>
+
+            <div
+                class="stat-value"
+                id="highReports">
+                0
+            </div>
+
+        </div>
+
+
+        <div class="stat-card medium-card">
+
+            <div class="stat-title">
+                Medium
+            </div>
+
+            <div
+                class="stat-value"
+                id="mediumReports">
+                0
+            </div>
+
+        </div>
+
+
+        <div class="stat-card low-card">
+
+            <div class="stat-title">
+                Low
+            </div>
+
+            <div
+                class="stat-value"
+                id="lowReports">
+                0
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="dashboard-grid">
+
+
+        <div class="dashboard-card">
+
+            <h3>
+                Risk Distribution
+            </h3>
+
+            <div id="riskBars"></div>
+
+        </div>
+
+
+        <div class="dashboard-card">
+
+            <h3>
+                Detected SIF Precursors
+            </h3>
+
+            <div id="precursorBars"></div>
+
+        </div>
+
+    </div>
+
+
+    <div class="dashboard-card recent-card">
+
+        <h3>
+            Recent Reports
+        </h3>
+
+        <div
+            id="reportsTable"
+            class="reports-table">
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- =====================================================
+ANALYSIS SECTION
+===================================================== -->
+
+<section class="analysis-section">
+
+    <div class="section-heading">
+
+        <p class="section-label">
+            SAFETY ANALYSIS
+        </p>
+
+        <h2>
+            Analyze Safety Report
+        </h2>
+
+        <p>
+            Provide structured information about the work activity,
+            location, observation and safety controls.
         </p>
 
     </div>
 
-</section>
+
+    <!-- =================================================
+    DEMO SELECTOR
+    ================================================= -->
+
+    <div class="input-card">
+
+        <label for="sampleReport">
+            Demo Scenario
+        </label>
+
+        <select id="sampleReport">
+
+            <option value="">
+                Select a demo scenario
+            </option>
+
+            <option value="confined">
+                Confined Space - Underground Valve Chamber
+            </option>
+
+            <option value="electrical">
+                Electrical - Maintenance on Electrical Panel
+            </option>
+
+            <option value="height">
+                Working at Height - Equipment Maintenance
+            </option>
+
+            <option value="fire">
+                Fire / Explosion - Hydrocarbon Handling Area
+            </option>
+
+            <option value="chemical">
+                Chemical - Hazardous Material Handling
+            </option>
+
+            <option value="vessel">
+                Vessel Entry - Internal Inspection
+            </option>
+
+            <option value="energized">
+                Energized Electrical Panel - Maintenance Activity
+            </option>
+
+            <option value="ventilation">
+                Confined Space - Poor Ventilation
+            </option>
+
+        </select>
+
+    </div>
 
 
+    <!-- =================================================
+    STRUCTURED INPUT
+    ================================================= -->
 
-<!-- =====================================================
-     DASHBOARD
-     ===================================================== -->
-
-<section id="dashboardSection">
-
-    <div class="container">
+    <div class="form-grid">
 
 
-        <!-- Section Header -->
+        <div class="input-card">
 
-        <div class="section-header">
+            <label for="locationInput">
+                1. Location / Work Area
+            </label>
+
+            <input
+                id="locationInput"
+                type="text"
+                placeholder="Example: Underground valve chamber">
+
+        </div>
+
+
+        <div class="input-card">
+
+            <label for="activityInput">
+                2. Activity / Task
+            </label>
+
+            <input
+                id="activityInput"
+                type="text"
+                placeholder="Example: Pipeline maintenance">
+
+        </div>
+
+
+        <div class="input-card full-width">
+
+            <label for="incidentInput">
+                3. Incident / Observation
+            </label>
+
+            <textarea
+                id="incidentInput"
+                rows="3"
+                placeholder="What happened or what was observed?"></textarea>
+
+        </div>
+
+
+        <div class="input-card full-width">
+
+            <label for="unsafeInput">
+                4. Unsafe Act / Unsafe Condition
+            </label>
+
+            <textarea
+                id="unsafeInput"
+                rows="3"
+                placeholder="Example: Worker entered without gas testing and entry permit"></textarea>
+
+        </div>
+
+
+        <div class="input-card">
+
+            <label for="controlsInput">
+                5. Existing Safety Controls
+            </label>
+
+            <textarea
+                id="controlsInput"
+                rows="3"
+                placeholder="Example: Entry permit and atmospheric testing required"></textarea>
+
+        </div>
+
+
+        <div class="input-card">
+
+            <label for="ppeInput">
+                6. PPE Used
+            </label>
+
+            <textarea
+                id="ppeInput"
+                rows="3"
+                placeholder="Example: Helmet, safety shoes"></textarea>
+
+        </div>
+
+
+        <div class="input-card full-width">
+
+            <label for="detailsInput">
+                7. Additional Details
+            </label>
+
+            <textarea
+                id="detailsInput"
+                rows="3"
+                placeholder="Add sequence, people involved, equipment or other relevant details"></textarea>
+
+        </div>
+
+
+    </div>
+
+
+    <!-- =================================================
+    GENERATED REPORT
+    ================================================= -->
+
+    <div class="input-card generated-card">
+
+        <div class="generated-heading">
 
             <div>
 
-                <h2 class="section-title">
-                    Safety Dashboard
-                </h2>
+                <label for="reportInput">
+                    Generated Safety Report
+                </label>
 
-                <p class="section-subtitle">
-                    Overview of analyzed safety reports and
-                    detected SIF precursor patterns.
+                <p>
+                    The structured information above is combined
+                    into a single report for the analysis engine.
                 </p>
 
             </div>
 
-
-            <button
-                class="refresh-btn"
-                onclick="loadDashboard()"
-                type="button"
-            >
-
-                ↻
-                Refresh Dashboard
-
-            </button>
-
         </div>
 
+        <textarea
+            id="reportInput"
+            rows="7"
+            readonly
+            placeholder="Your generated safety report will appear here..."></textarea>
 
+    </div>
 
-        <!-- =================================================
-             STATISTICS
-             ================================================= -->
 
-        <div class="stats-grid">
+    <!-- =================================================
+    ANALYZE BUTTON
+    ================================================= -->
 
+    <div class="analyze-wrapper">
 
-            <!-- Total -->
+        <button
+            id="analyzeBtn"
+            class="analyze-button">
 
-            <div class="stat-card">
+            Analyze Safety Report
 
-                <div class="stat-label">
-                    Total Reports
-                </div>
-
-                <div
-                    class="stat-value"
-                    id="totalReports"
-                >
-                    0
-                </div>
-
-            </div>
-
-
-            <!-- Critical -->
-
-            <div class="stat-card critical">
-
-                <div class="stat-label">
-                    Critical
-                </div>
-
-                <div
-                    class="stat-value"
-                    id="criticalReports"
-                >
-                    0
-                </div>
-
-            </div>
-
-
-            <!-- High -->
-
-            <div class="stat-card high">
-
-                <div class="stat-label">
-                    High
-                </div>
-
-                <div
-                    class="stat-value"
-                    id="highReports"
-                >
-                    0
-                </div>
-
-            </div>
-
-
-            <!-- Medium -->
-
-            <div class="stat-card medium">
-
-                <div class="stat-label">
-                    Medium
-                </div>
-
-                <div
-                    class="stat-value"
-                    id="mediumReports"
-                >
-                    0
-                </div>
-
-            </div>
-
-
-            <!-- Low -->
-
-            <div class="stat-card low">
-
-                <div class="stat-label">
-                    Low
-                </div>
-
-                <div
-                    class="stat-value"
-                    id="lowReports"
-                >
-                    0
-                </div>
-
-            </div>
-
-
-        </div>
-
-
-
-        <!-- =================================================
-             DASHBOARD CARDS
-             ================================================= -->
-
-        <div class="dashboard-grid">
-
-
-            <!-- =============================================
-                 RISK DISTRIBUTION
-                 ============================================= -->
-
-            <div class="card">
-
-                <div class="section-header">
-
-                    <div>
-
-                        <h3 class="section-title">
-                            Risk Distribution
-                        </h3>
-
-                        <p class="section-subtitle">
-                            Distribution of reports by risk level.
-                        </p>
-
-                    </div>
-
-                </div>
-
-
-                <div id="riskBars">
-
-                    <p>
-                        Loading risk distribution...
-                    </p>
-
-                </div>
-
-            </div>
-
-
-
-            <!-- =============================================
-                 TOP SIF PRECURSORS
-                 ============================================= -->
-
-            <div class="card">
-
-                <div class="section-header">
-
-                    <div>
-
-                        <h3 class="section-title">
-                            Top SIF Precursors
-                        </h3>
-
-                        <p class="section-subtitle">
-                            Frequently detected precursor patterns.
-                        </p>
-
-                    </div>
-
-                </div>
-
-
-                <div id="precursorBars">
-
-                    <p>
-                        Loading precursor data...
-                    </p>
-
-                </div>
-
-            </div>
-
-
-        </div>
-
-
-
-        <!-- =================================================
-             RECENT SAFETY REPORTS
-             ================================================= -->
+        </button>
 
         <div
-            class="card"
-            style="margin-top: 22px;"
-        >
+            id="loading"
+            class="loading"
+            style="display:none;">
 
-            <div class="section-header">
+            Analyzing safety report...
 
-                <div>
+        </div>
 
-                    <h3 class="section-title">
-                        Recent Safety Reports
-                    </h3>
+    </div>
 
-                    <p class="section-subtitle">
-                        Safety reports analyzed by the engine.
-                    </p>
 
-                </div>
+</section>
 
+
+<!-- =====================================================
+RESULT SECTION
+===================================================== -->
+
+<section
+    id="resultSection"
+    class="result-section"
+    style="display:none;">
+
+
+    <div class="section-heading">
+
+        <p class="section-label">
+            ANALYSIS RESULT
+        </p>
+
+        <h2>
+            Safety Intelligence Result
+        </h2>
+
+    </div>
+
+
+    <!-- =================================================
+    RESULT SUMMARY
+    ================================================= -->
+
+    <div class="result-summary">
+
+
+        <div class="result-score-card">
+
+            <div class="result-label">
+                Risk Score
             </div>
 
+            <div
+                id="riskScore"
+                class="result-score">
+                0
+            </div>
 
-            <div class="table-wrapper">
+            <div>
+                /100
+            </div>
 
-                <table>
-
-                    <thead>
-
-                        <tr>
-
-                            <th>
-                                ID
-                            </th>
-
-                            <th>
-                                Safety Report
-                            </th>
-
-                            <th>
-                                Category
-                            </th>
-
-                            <th>
-                                Risk Level
-                            </th>
-
-                            <th>
-                                Score
-                            </th>
-
-                        </tr>
-
-                    </thead>
+        </div>
 
 
-                    <tbody id="reportsTable">
+        <div class="result-info-card">
 
-                        <tr>
+            <div class="result-label">
+                Risk Level
+            </div>
 
-                            <td colspan="5">
-                                Loading...
-                            </td>
+            <div
+                id="riskLevel"
+                class="risk-level">
+                -
+            </div>
 
-                        </tr>
+        </div>
 
-                    </tbody>
 
-                </table>
+        <div class="result-info-card">
 
+            <div class="result-label">
+                Category
+            </div>
+
+            <div id="category">
+                -
             </div>
 
         </div>
@@ -388,541 +543,196 @@
 
     </div>
 
-</section>
 
+    <!-- =================================================
+    ANALYSIS
+    ================================================= -->
 
+    <div class="result-card">
 
-<!-- =====================================================
-     SAFETY REPORT ANALYSIS
-     ===================================================== -->
+        <h3>
+            AI / NLP Analysis
+        </h3>
 
-<section id="analyzerSection">
-
-    <div class="container">
-
-
-        <div class="section-header">
-
-            <div>
-
-                <h2 class="section-title">
-                    Safety Report Analysis
-                </h2>
-
-                <p class="section-subtitle">
-                    Enter a safety report or select a demo
-                    scenario to analyze SIF precursors.
-                </p>
-
-            </div>
-
-        </div>
-
-
-
-        <!-- =================================================
-             ANALYZER CARD
-             ================================================= -->
-
-        <div class="card analyzer-card">
-
-
-            <!-- =============================================
-                 DEMO SCENARIO
-                 ============================================= -->
-
-            <div class="input-group">
-
-                <label
-                    class="input-label"
-                    for="sampleReport"
-                >
-                    Demo Safety Report
-                </label>
-
-
-                <select id="sampleReport">
-
-                    <option value="">
-                        Select a demo scenario
-                    </option>
-
-                    <option value="confined">
-                        Confined Space - No Gas Testing + Permit Violation
-                    </option>
-
-                    <option value="electrical">
-                        Electrical - LOTO + Isolation Failure
-                    </option>
-
-                    <option value="height">
-                        Working at Height - Missing Fall Protection
-                    </option>
-
-                    <option value="fire">
-                        Fire / Explosion - Hydrocarbon Leak + Hot Work
-                    </option>
-
-                    <option value="chemical">
-                        Chemical - Hazardous Material + Missing PPE
-                    </option>
-
-                    <option value="vessel">
-                        Vessel Entry - Gas Testing + Permit Failure
-                    </option>
-
-                    <option value="energized">
-                        Energized Electrical Panel - LOTO Failure
-                    </option>
-
-                    <option value="ventilation">
-                        Confined Space - Poor Ventilation
-                    </option>
-
-                </select>
-
-            </div>
-
-
-
-            <!-- =============================================
-                 REPORT INPUT
-                 ============================================= -->
-
-            <div class="input-group">
-
-                <label
-                    class="input-label"
-                    for="reportInput"
-                >
-                    Safety Report
-                </label>
-
-
-                <textarea
-                    id="reportInput"
-                    placeholder="Enter an unsafe-act, unsafe-condition or near-miss report here..."
-                ></textarea>
-
-            </div>
-
-
-
-            <!-- =============================================
-                 ANALYZE BUTTON
-                 ============================================= -->
-
-            <button
-                id="analyzeBtn"
-                class="primary-btn"
-                type="button"
-            >
-
-                Analyze Report
-
-            </button>
-
-
-            <!-- Loading -->
-
-            <div id="loading">
-
-                Analyzing safety report...
-
-            </div>
-
-
-        </div>
-
-
-
-        <!-- =================================================
-             ANALYSIS RESULTS
-             ================================================= -->
-
-        <div
-            id="resultSection"
-            style="display: none;"
-        >
-
-
-            <!-- =============================================
-                 RESULT SUMMARY
-                 ============================================= -->
-
-            <div
-                class="result-grid"
-                style="margin-top: 22px;"
-            >
-
-
-                <!-- Risk Score -->
-
-                <div class="result-card">
-
-                    <h4>
-                        Risk Score
-                    </h4>
-
-                    <div
-                        class="result-value"
-                        id="riskScore"
-                    >
-                        0/100
-                    </div>
-
-                </div>
-
-
-                <!-- Risk Level -->
-
-                <div class="result-card">
-
-                    <h4>
-                        Risk Level
-                    </h4>
-
-                    <div
-                        class="result-value"
-                        id="riskLevel"
-                    >
-                        UNKNOWN
-                    </div>
-
-                </div>
-
-
-                <!-- Category -->
-
-                <div class="result-card">
-
-                    <h4>
-                        Category
-                    </h4>
-
-                    <div
-                        class="result-value"
-                        id="category"
-                    >
-                        Not detected
-                    </div>
-
-                </div>
-
-
-            </div>
-
-
-
-            <!-- =============================================
-                 EXPLAINABLE AI
-                 ============================================= -->
-
-            <div class="details-grid">
-
-
-                <!-- AI Analysis -->
-
-                <div class="detail-card">
-
-                    <h3>
-                        Explainable AI Analysis
-                    </h3>
-
-                    <p id="analysisText">
-                        No analysis available.
-                    </p>
-
-                </div>
-
-
-
-                <!-- Why Risk -->
-
-                <div class="detail-card">
-
-                    <h3>
-                        Why This Risk Level?
-                    </h3>
-
-                    <div id="whyRiskList">
-
-                        <p>
-                            Risk level is calculated based
-                            on detected safety factors.
-                        </p>
-
-                    </div>
-
-                </div>
-
-
-            </div>
-
-
-
-            <!-- =============================================
-                 SCORE BREAKDOWN
-                 ============================================= -->
-
-            <div
-                class="detail-card"
-                style="margin-top: 20px;"
-            >
-
-                <h3>
-                    Risk Score Breakdown
-                </h3>
-
-
-                <!-- Score Summary -->
-
-                <div
-                    class="result-grid"
-                    style="margin-top: 15px;"
-                >
-
-
-                    <div class="result-card">
-
-                        <h4>
-                            Base Score
-                        </h4>
-
-                        <div
-                            class="result-value"
-                            id="baseScore"
-                        >
-                            0
-                        </div>
-
-                    </div>
-
-
-                    <div class="result-card">
-
-                        <h4>
-                            Detected Points
-                        </h4>
-
-                        <div
-                            class="result-value"
-                            id="detectedPoints"
-                        >
-                            0
-                        </div>
-
-                    </div>
-
-
-                    <div class="result-card">
-
-                        <h4>
-                            Final Score
-                        </h4>
-
-                        <div
-                            class="result-value"
-                            id="finalScore"
-                        >
-                            0
-                        </div>
-
-                    </div>
-
-
-                </div>
-
-
-
-                <!-- Breakdown -->
-
-                <div id="breakdownList">
-
-                    <div class="score-item">
-
-                        <span>
-                            Base Score
-                        </span>
-
-                        <strong>
-                            +0
-                        </strong>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-
-
-            <!-- =============================================
-                 DETECTED EVIDENCE
-                 ============================================= -->
-
-            <div
-                class="detail-card"
-                style="margin-top: 20px;"
-            >
-
-                <h3>
-                    Detected Evidence
-                </h3>
-
-                <div id="evidenceList">
-
-                    <p>
-                        No evidence detected.
-                    </p>
-
-                </div>
-
-            </div>
-
-
-
-            <!-- =============================================
-                 SIF PRECURSORS
-                 ============================================= -->
-
-            <div
-                class="detail-card"
-                style="margin-top: 20px;"
-            >
-
-                <h3>
-                    SIF Precursors
-                </h3>
-
-                <div id="precursorsList">
-
-                    <p>
-                        No SIF precursors detected.
-                    </p>
-
-                </div>
-
-            </div>
-
-
-
-            <!-- =============================================
-                 POTENTIAL CONSEQUENCES
-                 ============================================= -->
-
-            <div
-                class="detail-card"
-                style="margin-top: 20px;"
-            >
-
-                <h3>
-                    Potential Consequences
-                </h3>
-
-                <div id="consequencesList">
-
-                    <p>
-                        No potential consequences identified.
-                    </p>
-
-                </div>
-
-            </div>
-
-
-
-            <!-- =============================================
-                 CORRECTIVE ACTIONS
-                 ============================================= -->
-
-            <div
-                class="detail-card"
-                style="margin-top: 20px;"
-            >
-
-                <h3>
-                    Recommended Corrective Actions
-                </h3>
-
-                <div id="actionsList">
-
-                    <p>
-                        No corrective actions available.
-                    </p>
-
-                </div>
-
-            </div>
-
-
-
-            <!-- =============================================
-                 ORIGINAL REPORT
-                 ============================================= -->
-
-            <div
-                class="detail-card"
-                style="margin-top: 20px;"
-            >
-
-                <h3>
-                    Original Safety Report
-                </h3>
-
-                <div
-                    id="originalReport"
-                    class="original-report"
-                >
-                    No report analyzed yet.
-                </div>
-
-            </div>
-
-
-        </div>
-
+        <p id="analysisText">
+        </p>
 
     </div>
 
+
+    <!-- =================================================
+    WHY RISK
+    ================================================= -->
+
+    <div class="result-card">
+
+        <h3>
+            Why is this Risky?
+        </h3>
+
+        <ul id="whyRiskList">
+        </ul>
+
+    </div>
+
+
+    <!-- =================================================
+    SCORE BREAKDOWN
+    ================================================= -->
+
+    <div class="result-card">
+
+        <h3>
+            Risk Score Breakdown
+        </h3>
+
+        <div class="score-details">
+
+            <div>
+                Base Score:
+                <strong id="baseScore">0</strong>
+            </div>
+
+            <div>
+                Detected Points:
+                <strong id="detectedPoints">0</strong>
+            </div>
+
+            <div>
+                Final Score:
+                <strong id="finalScore">0</strong>
+            </div>
+
+        </div>
+
+        <ul id="breakdownList">
+        </ul>
+
+    </div>
+
+
+    <!-- =================================================
+    EVIDENCE
+    ================================================= -->
+
+    <div class="result-card">
+
+        <h3>
+            Evidence Detected
+        </h3>
+
+        <ul id="evidenceList">
+        </ul>
+
+    </div>
+
+
+    <!-- =================================================
+    PRECURSORS
+    ================================================= -->
+
+    <div class="result-card">
+
+        <h3>
+            SIF Precursors
+        </h3>
+
+        <ul id="precursorsList">
+        </ul>
+
+    </div>
+
+
+    <!-- =================================================
+    HAZARDS
+    ================================================= -->
+
+    <div class="result-card">
+
+        <h3>
+            Detected Hazards
+        </h3>
+
+        <ul id="hazardsList">
+        </ul>
+
+    </div>
+
+
+    <!-- =================================================
+    CONSEQUENCES
+    ================================================= -->
+
+    <div class="result-card">
+
+        <h3>
+            Potential Consequences
+        </h3>
+
+        <ul id="consequencesList">
+        </ul>
+
+    </div>
+
+
+    <!-- =================================================
+    ACTIONS
+    ================================================= -->
+
+    <div class="result-card">
+
+        <h3>
+            Recommended Corrective Actions
+        </h3>
+
+        <ul id="actionsList">
+        </ul>
+
+    </div>
+
+
+    <!-- =================================================
+    ORIGINAL REPORT
+    ================================================= -->
+
+    <div class="result-card">
+
+        <h3>
+            Analyzed Safety Report
+        </h3>
+
+        <p id="originalReport">
+        </p>
+
+    </div>
+
+
 </section>
 
 
-
 <!-- =====================================================
-     FOOTER
-     ===================================================== -->
+FOOTER
+===================================================== -->
 
 <footer>
 
-    <div class="container">
+    <h3>
+        OIL SIF Safety Intelligence Engine
+    </h3>
 
-        <p>
-            <strong>
-                OIL SIF Safety Intelligence Engine
-            </strong>
-        </p>
+    <p>
+        AI/NLP-Assisted Detection of Serious Injury &
+        Fatality Precursors
+    </p>
 
-        <p>
-            AI/NLP-Assisted Detection of Serious Injury &amp; Fatality Precursors
-        </p>
-
-        <p>
-            Hybrid NLP + Rule-Based Safety Intelligence Prototype
-        </p>
-
-    </div>
+    <p>
+        Hybrid NLP + Rule-Based Safety Intelligence Prototype
+    </p>
 
 </footer>
 
 
-
-<!-- =====================================================
-     JAVASCRIPT
-     ===================================================== -->
-
 <script src="script.js"></script>
-
 
 </body>
 

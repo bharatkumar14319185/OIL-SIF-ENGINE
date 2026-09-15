@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
-from analyzer import analyze_report
+from analyzer import analyze_report, build_report
 
 
 # ======================================================
@@ -25,72 +25,35 @@ app.add_middleware(
     allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
-    allow_headers=["*"]
+    allow_headers=["*"],
 )
 
 
 # ======================================================
-# REQUEST MODEL
+# IN-MEMORY REPORT STORAGE
+# ======================================================
+
+reports = []
+
+
+# ======================================================
+# REQUEST MODELS
 # ======================================================
 
 class ReportRequest(BaseModel):
-    report: str
+
+    report: str = ""
 
 
-# ======================================================
-# DEMO REPORTS
-# ======================================================
+class StructuredReportRequest(BaseModel):
 
-demo_reports = [
-
-    {
-        "id": 1,
-        "report":
-        "Worker entered a confined space without gas testing and without permit."
-    },
-
-    {
-        "id": 2,
-        "report":
-        "Worker was working on an electrical panel without LOTO and without electrical isolation."
-    },
-
-    {
-        "id": 3,
-        "report":
-        "Worker was working at height without a safety harness and without guardrail."
-    },
-
-    {
-        "id": 4,
-        "report":
-        "A hydrocarbon leak was observed near a hot work area."
-    },
-
-    {
-        "id": 5,
-        "report":
-        "Worker was handling hazardous material without gloves and without helmet."
-    },
-
-    {
-        "id": 6,
-        "report":
-        "Worker entered a vessel after gas testing was not carried out and the entry permit was not obtained."
-    },
-
-    {
-        "id": 7,
-        "report":
-        "Maintenance activity was performed near an energized electrical panel. LOTO was not applied."
-    },
-
-    {
-        "id": 8,
-        "report":
-        "Poor ventilation was observed inside a confined space before entry."
-    }
-]
+    location: str = ""
+    activity: str = ""
+    incident: str = ""
+    unsafe_act: str = ""
+    controls: str = ""
+    ppe: str = ""
+    details: str = ""
 
 
 # ======================================================
@@ -101,21 +64,60 @@ demo_reports = [
 def root():
 
     return {
-        "message":
-        "OIL SIF Safety Intelligence Engine is running"
+        "message": "OIL SIF Safety Intelligence Engine is running"
     }
 
 
 # ======================================================
-# ANALYZE
+# ANALYZE NORMAL REPORT
 # ======================================================
 
 @app.post("/analyze")
 def analyze(request: ReportRequest):
 
-    return analyze_report(
-        request.report
+    report = request.report.strip()
+
+    if not report:
+
+        return {
+            "error": "Safety report cannot be empty."
+        }
+
+    result = analyze_report(report)
+
+    reports.append(result)
+
+    return result
+
+
+# ======================================================
+# ANALYZE STRUCTURED REPORT
+# ======================================================
+
+@app.post("/analyze-structured")
+def analyze_structured(request: StructuredReportRequest):
+
+    report = build_report(
+        location=request.location,
+        activity=request.activity,
+        incident=request.incident,
+        unsafe_act=request.unsafe_act,
+        controls=request.controls,
+        ppe=request.ppe,
+        details=request.details
     )
+
+    if not report.strip():
+
+        return {
+            "error": "Please provide at least one safety-report field."
+        }
+
+    result = analyze_report(report)
+
+    reports.append(result)
+
+    return result
 
 
 # ======================================================
@@ -125,100 +127,65 @@ def analyze(request: ReportRequest):
 @app.get("/dashboard")
 def dashboard():
 
-    analyzed_reports = []
+    total_reports = len(reports)
 
-    critical = 0
-    high = 0
-    medium = 0
-    low = 0
+    critical_reports = sum(
+        1 for report in reports
+        if report["risk_level"] == "CRITICAL"
+    )
+
+    high_reports = sum(
+        1 for report in reports
+        if report["risk_level"] == "HIGH"
+    )
+
+    medium_reports = sum(
+        1 for report in reports
+        if report["risk_level"] == "MEDIUM"
+    )
+
+    low_reports = sum(
+        1 for report in reports
+        if report["risk_level"] == "LOW"
+    )
 
     precursor_counts = {}
 
+    for report in reports:
 
-    for item in demo_reports:
-
-        result = analyze_report(
-            item["report"]
-        )
-
-
-        analyzed_reports.append({
-
-            "id": item["id"],
-
-            "report": item["report"],
-
-            "risk_score":
-                result["risk_score"],
-
-            "risk_level":
-                result["risk_level"],
-
-            "category":
-                result["category"],
-
-            "precursors":
-                result["precursors"]
-
-        })
-
-
-        # ----------------------------------------------
-        # RISK COUNTS
-        # ----------------------------------------------
-
-        if result["risk_level"] == "CRITICAL":
-
-            critical += 1
-
-        elif result["risk_level"] == "HIGH":
-
-            high += 1
-
-        elif result["risk_level"] == "MEDIUM":
-
-            medium += 1
-
-        else:
-
-            low += 1
-
-
-        # ----------------------------------------------
-        # PRECURSOR COUNTS
-        # ----------------------------------------------
-
-        for precursor in result["precursors"]:
+        for precursor in report["precursors"]:
 
             precursor_counts[precursor] = (
                 precursor_counts.get(precursor, 0) + 1
             )
 
-
-    # ==================================================
-    # RETURN DASHBOARD
-    # ==================================================
+    recent_reports = reports[-10:]
 
     return {
 
-        "total_reports":
-            len(analyzed_reports),
+        "total_reports": total_reports,
 
-        "critical":
-            critical,
+        "critical_reports": critical_reports,
 
-        "high":
-            high,
+        "high_reports": high_reports,
 
-        "medium":
-            medium,
+        "medium_reports": medium_reports,
 
-        "low":
-            low,
+        "low_reports": low_reports,
 
-        "precursor_counts":
-            precursor_counts,
+        "precursor_counts": precursor_counts,
 
-        "reports":
-            analyzed_reports
+        "reports": recent_reports
+    }
+
+
+# ======================================================
+# HEALTH CHECK
+# ======================================================
+
+@app.get("/health")
+def health():
+
+    return {
+        "status": "healthy"
     }
